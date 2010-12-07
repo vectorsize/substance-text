@@ -1,0 +1,43 @@
+/* Page Setup
+/* ------------ */
+
+body {
+  padding: 50px;
+  color:#444;
+  font-family:"HelveticaNeue", Helvetica, Arial, sans-serif;
+  font-size:14px;
+  line-height:1.5em;
+}
+
+* {
+  box-sizing:border-box;
+  -webkit-box-sizing:border-box;
+  -moz-box-sizing:border-box;
+}
+
+:focus {
+  outline: 0;
+}
+
+html {overflow:auto;}
+a { color:rgba(148,207,13,1);text-decoration:none; }
+h1 { margin-left: 10px; color:rgba(148,207,13,1); }
+
+.credits {
+  margin-top: 80px;
+  margin-left: 10px;
+  color: #ccc;
+}
+
+.content { 
+  margin-top: 70px; padding: 10px;
+  -webkit-border-radius:5px;
+  -moz-border-radius:   5px;
+  border-radius:        5px;
+  border: 1px dashed transparent;
+}
+
+.content:hover {
+  border: 1px dashed #eee;
+}
+.content[contenteditable=true] { border-color: #aaa; }

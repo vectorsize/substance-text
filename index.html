@@ -1,0 +1,44 @@
+<!DOCTYPE html> 
+<html> 
+<head> 
+  <title>PROPER&trade; - Semantic Richtext Editor</title>  
+  
+  <!-- Styles -->
+  <link href="stylesheets/page.css" media="screen" rel="stylesheet" type="text/css" />
+  <link href="stylesheets/proper.css" media="screen" rel="stylesheet" type="text/css" />
+  
+  <!-- Libraries -->
+  <script src="lib/jquery-1.4.3.min.js"></script>
+    
+  <!-- Source -->
+  <script src="proper.js"></script>
+
+  <script>
+    // Proper Init
+    $(function() {
+      var editor = new Proper({
+        elements: '.content'
+      });
+    });
+  </script>
+  
+</head>
+<body>
+  <h1>PROPER&trade; - Semantic Text Editor</h1>
+  
+  <div class="content">
+    <p>Text wants to be <b>editable</b>.<br/>But text also wants to be <b>meaningful</b>.</p>
+  </div>
+  
+  <div class="content">
+    <p>Even more content, ready to be edited.</p>
+  </div>
+  
+  <div class="credits">
+    Straight from the labs of <a href="http://quasipartikel.at">Quaspartikel</a> 
+    and <a href="http://gestaltungsbureau.at/">Gestaltungsbureau</a>. 
+  </div>
+  
+  <a href="http://github.com/michael/proper"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://assets2.github.com/img/71eeaab9d563c2b3c590319b398dd35683265e85?repo=&url=http%3A%2F%2Fs3.amazonaws.com%2Fgithub%2Fribbons%2Fforkme_right_gray_6d6d6d.png&path=" alt="Fork me on GitHub"></a>
+</body> 
+</html>
