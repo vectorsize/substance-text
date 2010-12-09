@@ -9,6 +9,8 @@
   
   <!-- Libraries -->
   <script src="lib/jquery-1.4.3.min.js"></script>
+  <script src="lib/underscore.js"></script>
+  <script src="lib/sanitize.js"></script>
     
   <!-- Source -->
   <script src="proper.js"></script>
@@ -16,8 +18,15 @@
   <script>
     // Proper Init
     $(function() {
-      var editor = new Proper({
-        elements: '.content'
+      var editor = new Proper();
+      
+      $('.content').click(function() {
+        editor.activate($(this));
+        
+        // Update node when editor commands are applied
+        editor.bind('changed', function() {
+          $('#sanitized_html').val(editor.content());
+        });
       });
     });
   </script>
@@ -26,14 +35,32 @@
 <body>
   <h1>PROPER&trade; - Semantic Text Editor</h1>
   
-  <div class="content">
-    <p>Text wants to be <b>editable</b>.<br/>But text also wants to be <b>meaningful</b>.</p>
+  <div id="main">
+    <div class="content">
+      <p>Text wants to be <strong>editable</strong>.<br/>But text also wants to be <strong>meaningful</strong>.</p>
+    </div>
+  
+    <div class="content">
+      <p>On the right, you see the <em>sanitized</em> (and hopefully correct) HTML output. You can even try to copy &amp; paste snippets from existing websites.
+        The style attributes should be removed for you.
+      </p>
+    </div>
+    
+    <div class="content">
+      <p><strong>Known Issues:</strong></p>
+      <ul>
+        <li>Editable content area looses focus when a command is issued</li>
+        <li>Icons for emphasized and strong, as well as for indent/outdent are quite misleading yet. ;) ... To be updated soon. </li>
+      </ul>
+      <p>We're working on it.</p>
+    </div>
+    
   </div>
   
-  <div class="content">
-    <p>Even more content, ready to be edited.</p>
+  <div id="source">
+    <textarea id="sanitized_html"></textarea>
   </div>
-  
+  <br class="clear"/>
   <div class="credits">
     Straight from the labs of <a href="http://quasipartikel.at">Quaspartikel</a> 
     and <a href="http://gestaltungsbureau.at/">Gestaltungsbureau</a>. 

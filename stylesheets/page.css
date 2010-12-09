@@ -15,6 +15,8 @@ body {
   -moz-box-sizing:border-box;
 }
 
+.clear { clear: both; }
+
 :focus {
   outline: 0;
 }
@@ -27,6 +29,34 @@ h1 { margin-left: 10px; color:rgba(148,207,13,1); }
   margin-top: 80px;
   margin-left: 10px;
   color: #ccc;
+}
+
+#main {
+  float: left;
+  width: 45%;
+}
+
+#source {
+  float: left;
+  margin-left: 20px;
+  margin-top: 70px;
+  width: 45%;
+  
+}
+
+em { background: #eee; padding: 2px; }
+
+#source textarea { 
+  width: 100%;
+  height: 300px;
+  padding: 5px;
+  font-family: monospace;
+  font-size: 13px;
+  color: #777;
+  background: #eee;
+  -webkit-border-radius:5px;
+  -moz-border-radius:   5px;
+  border-radius:        5px;
 }
 
 .content { 

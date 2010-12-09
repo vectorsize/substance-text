@@ -4,6 +4,89 @@
 //     http://github.com/michael/proper
 
 (function(){
+  
+  // _.Events (borrowed from Backbone.js)
+  // -----------------
+  
+  // A module that can be mixed in to *any object* in order to provide it with
+  // custom events. You may `bind` or `unbind` a callback function to an event;
+  // `trigger`-ing an event fires all callbacks in succession.
+  //
+  //     var object = {};
+  //     _.extend(object, Backbone.Events);
+  //     object.bind('expand', function(){ alert('expanded'); });
+  //     object.trigger('expand');
+  //
+  
+  _.Events = window.Backbone ? Backbone.Events : {
+
+    // Bind an event, specified by a string name, `ev`, to a `callback` function.
+    // Passing `"all"` will bind the callback to all events fired.
+    bind : function(ev, callback) {
+      var calls = this._callbacks || (this._callbacks = {});
+      var list  = this._callbacks[ev] || (this._callbacks[ev] = []);
+      list.push(callback);
+      return this;
+    },
+
+    // Remove one or many callbacks. If `callback` is null, removes all
+    // callbacks for the event. If `ev` is null, removes all bound callbacks
+    // for all events.
+    unbind : function(ev, callback) {
+      var calls;
+      if (!ev) {
+        this._callbacks = {};
+      } else if (calls = this._callbacks) {
+        if (!callback) {
+          calls[ev] = [];
+        } else {
+          var list = calls[ev];
+          if (!list) return this;
+          for (var i = 0, l = list.length; i < l; i++) {
+            if (callback === list[i]) {
+              list.splice(i, 1);
+              break;
+            }
+          }
+        }
+      }
+      return this;
+    },
+
+    // Trigger an event, firing all bound callbacks. Callbacks are passed the
+    // same arguments as `trigger` is, apart from the event name.
+    // Listening for `"all"` passes the true event name as the first argument.
+    trigger : function(ev) {
+      var list, calls, i, l;
+      if (!(calls = this._callbacks)) return this;
+      if (list = calls[ev]) {
+        for (i = 0, l = list.length; i < l; i++) {
+          list[i].apply(this, Array.prototype.slice.call(arguments, 1));
+        }
+      }
+      if (list = calls['all']) {
+        for (i = 0, l = list.length; i < l; i++) {
+          list[i].apply(this, arguments);
+        }
+      }
+      return this;
+    }
+  };
+
+  Sanitize.Config = {}
+  Sanitize.Config.BASIC = {
+    elements: [
+       'a', 'b', 'br', 'em', 'i', 'li', 'ol', 'p', 'strong', 'ul'],
+
+     attributes: {
+       'a': ['href'],
+     },
+
+     protocols: {
+       'a': {'href': ['ftp', 'http', 'https', 'mailto', Sanitize.RELATIVE]}
+     }
+  };
+
 
   // Initial Setup
   // -------------
@@ -26,11 +109,11 @@
   // -----------
   
   this.Proper = function(options) {
-    var elements = $(options.elements),  // all watched elements
-        activeElement = null,            // element that is being edited
-        $controls = $(controlsTpl),      // the controls panel
-        self = {};
-    
+    var activeElement = null,     // element that is being edited
+        $commands,
+        self = {},
+        that = this,
+        pendingChange = false;
     
     // Commands
     // -----------
@@ -75,23 +158,69 @@
         alert($(this.el).html());
       }
     };
-
-    // Activate editor for a given element
     
-    function deactivate() {
-      $(activeElement).attr('contenteditable', 'false');
-      $controls.hide();
+    // Clean up the mess produced by contenteditable
+    function sanitize(element) {
+      var s = new Sanitize(Sanitize.Config.BASIC);
+      var content = s.clean_node(element);
+      $(element).html(content);
     }
     
-    function activate(el) {
+    function semantify(element) {
+      $(element).find('b').each(function() {
+        $(this).replaceWith($('<strong>').html($(this).html()));
+      });
+      
+      $(element).find('i').each(function() {
+        $(this).replaceWith($('<em>').html($(this).html()));
+      });
+    }
+    
+    
+    function bindEvents(el) {
+      $(el).bind('paste', function() {
+        // Immediately sanitize pasted content
+        setTimeout(function() {
+          sanitize($(el)[0]);
+        }, 10);
+      });
+      
+      $(el).bind('keyup', function() {
+        // Trigger change events, but consolidate them to 200ms time slices
+        setTimeout(function() {
+          // Skip if there's already a change pending
+          if (!pendingChange) {
+            pendingChange = true;
+            setTimeout(function() {
+              pendingChange = false;
+              self.trigger('changed');
+            }, 200);
+          }
+        }, 10);
+      });
+    }
+    
+    // Instance methods
+    // -----------
+
+    self.deactivate = function() {
+      $(activeElement).attr('contenteditable', 'false');
+      $(activeElement).unbind('paste');
+      $controls.hide();
+      self.unbind('changed');
+    };
+    
+    // Activate editor for a given element
+    self.activate = function(el) {
       
       if (el !== activeElement) {
         // Deactivate previously active element
-        deactivate();
+        self.deactivate();
         
         // Make editable
         $(el).attr('contenteditable', true);
         activeElement = el;
+        bindEvents(el);
         
         // Show and reposition controls
         $controls.show();
@@ -99,36 +228,34 @@
         $controls.css('left', offset.left)
                  .css('top', offset.top-$controls.height()-10);
       }
-    }
+    };
     
-    // Instance methods
-    // -----------
-
+    // Get current content
+    self.content = function() {
+      return activeElement ? $(activeElement).html() : '';
+    };
     
-    
-    // Initialize
-    // -----------
-    
-    // Activate editor on click
-    elements.each(function(index, el) {
-      $(el).click(function() {
-        activate(el);
-      });
-    });
-    
-    // Set up the controls
+    $controls = $(controlsTpl),                // the controls panel
     $controls.prependTo($('body')).hide();
     
     // Bind events for controls
     $('.proper-commands a.command').click(function(e) {
       commands['exec'+ $(e.currentTarget).attr('command').toUpperCase()]();
+
+      setTimeout(function() {
+        semantify(activeElement);
+        sanitize($(activeElement)[0]);
+        self.trigger('changed');
+      }, 10);
+      
       return false;
     });
     
-    
+
     // Expose public API
     // -----------
     
+    _.extend(self, _.Events);
     return self;
   };
   
