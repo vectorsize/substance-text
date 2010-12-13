@@ -18,15 +18,16 @@
   <script>
     // Proper Init
     $(function() {
-      var editor = new Proper();
+      window.editor = new Proper();
       
       $('.content').click(function() {
         editor.activate($(this));
         
         // Update node when editor commands are applied
         editor.bind('changed', function() {
-          $('#sanitized_html').val(editor.content());
+          $('#source').text(editor.content());
         });
+        
       });
     });
   </script>
@@ -49,7 +50,7 @@
     <div class="content">
       <p><strong>Known Issues:</strong></p>
       <ul>
-        <li>Editable content area looses focus when a command is issued</li>
+        <li><span style="text-decoration:line-through;"> Editable content area looses focus when a command is issued</span></li>
         <li>Icons for emphasized and strong, as well as for indent/outdent are quite misleading yet. ;) ... To be updated soon. </li>
       </ul>
       <p>We're working on it.</p>
@@ -58,7 +59,7 @@
   </div>
   
   <div id="source">
-    <textarea id="sanitized_html"></textarea>
+
   </div>
   <br class="clear"/>
   <div class="credits">
