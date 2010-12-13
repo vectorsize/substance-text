@@ -52,11 +52,13 @@ h1 { margin-left: 10px; color:rgba(148,207,13,1); }
   border-radius:        5px;
 }
 
+code { font-family: Monaco, Consolas; font-size: 11px; padding: 0px 3px; background: #eee; }
+
 i { background: #eee; padding: 2px; }
 em { background: #eee; padding: 2px; }
 
 .content { 
-  margin-top: 70px; padding: 10px;
+  margin-top: 40px; padding: 10px;
   -webkit-border-radius:5px;
   -moz-border-radius:   5px;
   border-radius:        5px;
