@@ -102,7 +102,7 @@
       <a href="#" title="Indent" class="command indent" command="indent"><div>Indent</div></a> \
       <a href="#" title="Outdent" class="command outdent" command="outdent"><div>Outdent</div></a> \
       <div class="separator">|</div> \
-      <a title="List" href="#" class="command link" command="link"><div>Link</div></a> \
+      <a title="Link" href="#" class="command link" command="link"><div>Link</div></a> \
     </div> \
   ';
   
