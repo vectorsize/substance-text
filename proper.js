@@ -1,4 +1,4 @@
-//     (c) 2010 Michael Aufreiter
+//     (c) 2011 Michael Aufreiter
 //     Proper is freely distributable under the MIT license.
 //     For all details and documentation:
 //     http://github.com/michael/proper
@@ -72,89 +72,141 @@
       return this;
     }
   };
-
-  Sanitize.Config = {}
-  Sanitize.Config.BASIC = {
-    elements: [
-       'a', 'b', 'br', 'em', 'i', 'li', 'ol', 'p', 'strong', 'code', 'ul'],
-
-     attributes: {
-       'a': ['href'],
-     },
-
-     protocols: {
-       'a': {'href': ['ftp', 'http', 'https', 'mailto', Sanitize.RELATIVE]}
-     }
+  
+  _.stripTags = function(input, allowed) {
+  // Strips HTML and PHP tags from a string
+  //
+  // version: 1009.2513
+  // discuss at: http://phpjs.org/functions/strip_tags
+     allowed = (((allowed || "") + "")
+        .toLowerCase()
+        .match(/<[a-z][a-z0-9]*>/g) || [])
+        .join(''); // making sure the allowed arg is a string containing only tags in lowercase (<a><b><c>)
+     var tags = /<\/?([a-z][a-z0-9]*)\b[^>]*>/gi,
+         commentsAndPhpTags = /<!--[\s\S]*?-->|<\?(?:php)?[\s\S]*?\?>/gi;
+     return input.replace(commentsAndPhpTags, '').replace(tags, function($0, $1){
+        return allowed.indexOf('<' + $1.toLowerCase() + '>') > -1 ? $0 : '';
+     });
   };
-
 
   // Initial Setup
   // -------------
 
   controlsTpl = ' \
     <div class="proper-commands"> \
-      <a href="#" title="Emphasis" class="command em" command="em"><div>Emphasis</div></a> \
-      <a href="#" title="Strong" class="command strong" command="strong"><div>Strong</div></a> \
-      <a href="#" title="Code" class="command code" command="code"><div>Code</div></a> \
-      <div class="separator">|</div> \
-      <a href="#" title="Bullet List" class="command ul" command="ul"><div>Bullets List</div></a> \
-      <a href="#" title="Numbered List" class="command ol" command="ol"><div>Numbered List</div></a> \
-      <a href="#" title="Indent" class="command indent" command="indent"><div>Indent</div></a> \
-      <a href="#" title="Outdent" class="command outdent" command="outdent"><div>Outdent</div></a> \
-      <div class="separator">|</div> \
-      <a title="List" href="#" class="command link" command="link"><div>Link</div></a> \
-    </div> \
-  ';
+      <a href="#" title="Emphasis (CTRL+SHIFT+E)" class="command em" command="em"><div>Emphasis</div></a> \
+      <a href="#" title="Strong (CTRL+SHIFT+S)" class="command strong" command="strong"><div>Strong</div></a> \
+      <!--<a href="#" title="Inline Code (CTRL+SHIFT+C)" class="command code" command="code"><div>Code</div></a>--> \
+      <a title="Link (CTRL+SHIFT+L)" href="#" class="command link" command="link"><div>Link</div></a>\
+      <a href="#" title="Bullet List (CTRL+SHIFT+B)" class="command ul" command="ul"><div>Bullets List</div></a>\
+      <a href="#" title="Numbered List (CTRL+SHIFT+N)" class="command ol" command="ol"><div>Numbered List</div></a>\
+      <a href="#" title="Indent (TAB)" class="command indent" command="indent"><div>Indent</div></a>\
+      <a href="#" title="Outdent (SHIFT+TAB)" class="command outdent" command="outdent"><div>Outdent</div></a>\
+      <br class="clear"/>\
+    </div>';
+  
+  var COMMANDS = {
+    "em": "italic",
+    "strong": "bold",
+    "ul": "insertUnorderedList",
+    "ol": "insertOrderedList",
+    "indent": "indent",
+    "outdent": "outdent",
+    "link": "createLink"
+  }
   
   // Proper
   // -----------
   
   this.Proper = function(options) {
-    var activeElement = null,     // element that is being edited
-        $commands,
+    var activeElement = null, // element that's being edited
+        $controls,
         self = {},
         that = this,
-        pendingChange = false;
+        pendingChange = false,
+        options = {},
+        defaultOptions = { // default options
+          multiline: true,
+          markup: true,
+          placeholder: 'Enter Text'
+        };
     
     // Setup temporary hidden DOM Node, for sanitization
     $('body').append($('<div id="proper_content"></div>').hide());
+    var rawContent = $('<div id="proper_raw_content" contenteditable="true"></div>');
+    rawContent.css('position', 'fixed');
+    rawContent.css('top', '20px');
+    rawContent.css('left', '20px');
+    rawContent.css('opacity', '0');
+    
+    $('body').append(rawContent);
     
     // Commands
     // -----------
     
+    function tagActive(element) {
+      var sel = window.getSelection();
+      var range = sel.getRangeAt(0);
+      return range.startContainer.parentNode.localName === element || range.endContainer.parentNode.localName === element;
+    }
+    
+    // A proper implementation of execCommand
+    function toggleTag(tag) {
+      var sel = window.getSelection();
+      var range = sel.getRangeAt(0);
+      
+      if (sel+"".length == 0) return;
+      
+      if (tagActive(tag)) {
+        document.execCommand('removeFormat');
+      } else {
+        var sel = window.getSelection();
+        var range = sel.getRangeAt(0);
+        document.execCommand('removeFormat');
+        document.execCommand('insertHTML', false, '<'+tag+'>'+window.getSelection()+'</'+tag+'>');
+      }
+    }
+    
     var commands = {
       execEM: function() {
+        if (!document.queryCommandState('italic')) document.execCommand('removeFormat');
         document.execCommand('italic', false, true);
         return false;
       },
 
       execSTRONG: function() {
-        document.execCommand('bold', false, true);
+        if (!document.queryCommandState('bold')) document.execCommand('removeFormat');
+        document.execCommand('bold', true, true);
         return false;
       },
       
       execCODE: function() {
-        document.execCommand('insertHTML', false, '<code>'+window.getSelection()+'</code>');
+        if (!tagActive('code')) document.execCommand('removeFormat');
+        toggleTag('code');
         return false;
       },
 
       execUL: function() {
-        document.execCommand('insertUnorderedList', false, null);
+        document.execCommand('insertUnorderedList', true, null);
         return false;
       },
 
       execOL: function() {
-        document.execCommand('insertOrderedList', false, null);
+        document.execCommand('insertOrderedList', true, null);
         return false;
       },
 
       execINDENT: function() {
-        document.execCommand('indent', false, null);
+        if (document.queryCommandState('insertOrderedList') || document.queryCommandState('insertUnorderedList')) {
+          document.execCommand('indent', false, null);
+        }
         return false;
       },
 
       execOUTDENT: function() {
-        document.execCommand('outdent', false, null);
+        if (document.queryCommandState('insertOrderedList') || document.queryCommandState('insertUnorderedList')) {
+          document.execCommand('outdent', false, null);
+        }
         return false;
       },
       
@@ -168,33 +220,131 @@
       }
     };
     
-    // Clean up the mess produced by contenteditable
-    function sanitize(element) {
-      var s = new Sanitize(Sanitize.Config.BASIC);
-      var content = s.clean_node(element);
-      $('#proper_content').html(content);
+    // TODO: enable proper sanitizing that allows markup to be pasted too
+    function sanitize() {      
+      var rawContent = document.getElementById('proper_raw_content');
+      $('#proper_content').html($(rawContent).text());
     }
     
-    function semantify(element) {
-      $(element).find('b').each(function() {
-        $(this).replaceWith($('<strong>').html($(this).html()));
-      });
+    function updateCommandState() {
+      if (!options.markup) return;
+      $(activeElement).focus();
       
-      $(element).find('i').each(function() {
-        $(this).replaceWith($('<em>').html($(this).html()));
+      $controls.find('.command').removeClass('selected');
+      _.each(COMMANDS, function(command, key) {
+        if (document.queryCommandState(command)) {
+          $controls.find('.command.'+key).addClass('selected');
+        }
+        if (tagActive('code')) {
+          $controls.find('.command.code').addClass('selected');
+        }
       });
+    }
+    
+    // Used for placeholders
+    function checkEmpty() {
+      if ($(activeElement).text().trim().length === 0) {
+        $(activeElement).addClass('empty');
+        if (options.markup) {
+          $(activeElement).html('<p>&laquo; '+options.placeholder+' &raquo;</p>');
+        } else {
+          $(activeElement).html('&laquo; '+options.placeholder+' &raquo;');
+        }
+      }
+    }
+    
+    // Clean up the mess produced by contenteditable
+    function semantify(html) {
+      return html.replace(/<i>/g, '<em>')
+                 .replace(/<\/i>/g, '</em>')
+                 .replace(/<b>/g, '<strong>')
+                 .replace(/<\/b>/g, '</strong>');
+    }
+    
+    function saveSelection() {
+      if (window.getSelection) {
+        sel = window.getSelection();
+        if (sel.getRangeAt && sel.rangeCount) {
+          return sel.getRangeAt(0);
+        }
+      } else if (document.selection && document.selection.createRange) {
+        return document.selection.createRange();
+      }
+      return null;
+    }
+
+    function restoreSelection(range) {
+      if (range) {
+        if (window.getSelection) {
+          sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+        } else if (document.selection && range.select) {
+          range.select();
+        }
+      }
+    }
+    
+    function selectAll() {
+      range = document.createRange();
+      range.selectNodeContents($(activeElement)[0]);
+      selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
     }
     
     function bindEvents(el) {
+      $(el).unbind('paste');
+      $(el).unbind('keydown');
+      $(el).unbind('keyup');
+      $(el).unbind('blur');
+      
       $(el).bind('paste', function() {
+        var selection = saveSelection();
+        $('#proper_raw_content').focus();
+        
         // Immediately sanitize pasted content
         setTimeout(function() {
-          sanitize($(el)[0]);
-          $(el).html($('#proper_content').html());
-        }, 10);
+          sanitize();
+          restoreSelection(selection);
+          $(el).focus();
+          
+          // Avoid nested paragraph correction resulting from paste
+          var content = $('#proper_content').html().trim();
+
+          // For some reason last </p> gets injected anyway
+          document.execCommand('insertHTML', false, content);
+          $('#proper_raw_content').html('');
+        }, 1);
       });
       
-      $(el).bind('keyup', function() {
+      // Prevent multiline
+      $(el).bind('keydown', function(e) {
+        if (!options.multiline && e.keyCode === 13) {
+          e.stopPropagation();
+          return false;
+        }
+        
+        if (e.keyCode == 8 && $(activeElement).text().trim().length == 0) {
+          e.stopPropagation();
+          return false;
+        }
+      });
+      
+      $(el).bind('blur', checkEmpty);
+      $(el).bind('click', updateCommandState);
+      
+      $(el).bind('keyup', function(e) {        
+        updateCommandState();
+        if ($(activeElement).text().trim().length > 0) {
+          $(activeElement).removeClass('empty');
+        } else {
+          // TODO: problematic when hitting enter on an empty div
+          selectAll();
+          document.execCommand('insertHTML', false, "");
+          $(activeElement).addClass('empty');
+        }
+        
         // Trigger change events, but consolidate them to 200ms time slices
         setTimeout(function() {
           // Skip if there's already a change pending
@@ -202,16 +352,10 @@
             pendingChange = true;
             setTimeout(function() {
               pendingChange = false;
-              
-              // Sanitize on every keystroke
-              sanitize($(activeElement)[0]);
-              semantify($('#proper_content')[0]);
-              
               self.trigger('changed');
             }, 200);
           }
         }, 10);
-        
         return true;
       });
     }
@@ -222,60 +366,78 @@
     self.deactivate = function() {
       $(activeElement).attr('contenteditable', 'false');
       $(activeElement).unbind('paste');
-      $controls.hide();
+      $(activeElement).unbind('keydown');
+      $('.proper-commands').remove();
       self.unbind('changed');
     };
     
     // Activate editor for a given element
-    self.activate = function(el) {
+    self.activate = function(el, opts) {
+      options = {};
+      _.extend(options, defaultOptions, opts);
       
-      if (el !== activeElement) {
-        // Deactivate previously active element
-        self.deactivate();
-        
-        // Make editable
-        $(el).attr('contenteditable', true);
-        activeElement = el;
-        bindEvents(el);
-        
-        // Show and reposition controls
-        
-        // Init sanitized content
-        $('#proper_content').html($(el).html());
-        
-        $controls.insertBefore(el);
-        $controls.show();
+      // Deactivate previously active element
+      self.deactivate();
+      
+      // Make editable
+      $(el).attr('contenteditable', true);
+      activeElement = el;
+      bindEvents(el);
+      
+      // Setup controls
+      if (options.markup) {
+        $controls = $(controlsTpl); 
+        $controls.appendTo($(options.controlsTarget));          
       }
+      
+      // Keyboard bindings
+      if (options.markup) {
+        $(activeElement).bind('keydown', 'ctrl+shift+e', commands.execEM);
+        $(activeElement).bind('keydown', 'ctrl+shift+s', commands.execSTRONG);
+        $(activeElement).bind('keydown', 'ctrl+shift+c', commands.execCODE);
+        $(activeElement).bind('keydown', 'ctrl+shift+l', commands.execLINK);
+        $(activeElement).bind('keydown', 'ctrl+shift+b', commands.execUL);
+        $(activeElement).bind('keydown', 'ctrl+shift+n', commands.execOL);
+        $(activeElement).bind('keydown', 'tab', commands.execINDENT);
+        $(activeElement).bind('keydown', 'shift+tab', commands.execOUTDENT);
+      }
+      
+      updateCommandState();
+      if (el.hasClass('empty')) {
+        selectAll();
+        document.execCommand('insertHTML', false, "");
+      }
+      
+      $('.proper-commands a.command').click(function(e) {
+        commands['exec'+ $(e.currentTarget).attr('command').toUpperCase()]();
+        updateCommandState();
+        setTimeout(function() {
+          self.trigger('changed');
+        }, 10);
+        return false;
+      });
     };
     
     // Get current content
     self.content = function() {
-      return activeElement ? $('#proper_content').html() : '';
+      if ($(activeElement).hasClass('empty')) return '';
+      
+      if (options.markup) {
+        return activeElement ? semantify($(activeElement).html()).trim() : '';
+      } else {
+        if (options.multiline) {
+          return _.stripTags($(activeElement).html().replace(/<div>/g, '\n')
+                                             .replace(/<\/div>/g, '')).trim();
+        } else {
+          return _.stripTags($(activeElement).html()).trim();
+        }
+      }
     };
     
-    $controls = $(controlsTpl),                // the controls panel
-    $controls.prependTo($('body')).hide();
-    
-    // Bind events for controls
-    $('.proper-commands a.command').click(function(e) {
-      commands['exec'+ $(e.currentTarget).attr('command').toUpperCase()]();
-
-      setTimeout(function() {
-        sanitize($(activeElement)[0]);
-        semantify($('#proper_content')[0]);
-        
-        self.trigger('changed');
-      }, 10);
-      
-      return false;
-    });
-    
-
     // Expose public API
     // -----------
     
     _.extend(self, _.Events);
     return self;
   };
-  
 })();

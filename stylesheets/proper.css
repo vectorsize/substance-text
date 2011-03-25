@@ -33,6 +33,7 @@
   background:rgba(0,0,0,0.12);
 }
 
+
 .proper-commands .command.selected {
   background:rgba(0,0,0,0.12);
   -webkit-box-shadow: inset 0px 1px 4px rgba(0,0,0,0.2), inset 0px 2px 2px rgba(0,0,0,0.04), 0px 1px 0px rgba(255,255,255,0.5);

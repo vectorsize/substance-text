@@ -8,9 +8,9 @@
   <link href="stylesheets/proper.css" media="screen" rel="stylesheet" type="text/css" />
   
   <!-- Libraries -->
-  <script src="lib/jquery-1.4.3.min.js"></script>
+  <script src="lib/jquery-1.5.min.js"></script>
+  <script src="lib/jquery.hotkeys.js"></script>
   <script src="lib/underscore.js"></script>
-  <script src="lib/sanitize.js"></script>
     
   <!-- Source -->
   <script src="proper.js"></script>
@@ -21,32 +21,53 @@
       window.editor = new Proper();
       
       $('.content').click(function() {
-        editor.activate($(this));
+        editor.activate($(this), {placeholder: 'Enter Text', controlsTarget: $('#tools')});
         
         // Update node when editor commands are applied
         editor.bind('changed', function() {
           $('#source').text(editor.content());
         });
+      });
+      
+      $('h2.no-markup').click(function() {
+        editor.activate($(this), { markup: false, multiline: false });
         
+        // Update node when editor commands are applied
+        editor.bind('changed', function() {
+          $('#source').text(editor.content());
+        });
       });
     });
   </script>
   
 </head>
 <body>
-  <h1>PROPER&trade; - Semantic Rich Text Editor</h1>
+  <h1>PROPER&trade; - Semantic Rich Text Editor (Version 0.2.0)</h1>
   
   <div id="main">
+    <div id="tools"></div>
     <div class="content">
-      <p>Text wants to be <strong>editable</strong>.<br/>But text also wants to be <strong>meaningful</strong>.</p>
+      <p>Text wants to be <strong>editable</strong>.<br/>But text also wants to be <strong>meaningful</strong>.
+      </p>
     </div>
   
     <div class="content">
-      <p>On the right, you see the <em>sanitized</em> (and hopefully correct) HTML output. You can even try to copy &amp; paste snippets from existing websites.
-        The style attributes should be removed for you.
+      <p>
+        On the right, you see the <em>sanitized</em> (and hopefully correct) HTML output.
+        You can even try to copy &amp; paste snippets from existing websites.
+      </p>
+      <p>
+        Known issues:
+        <ul>
+          <li>Only works in webkit based browsers</li>
+          <li>Does not yet consider markup for pasted content</li>
+        </ul>
       </p>
     </div>
     
+    <h2 class="no-markup">
+      Here we prevent from using markup and newlines
+    </h2>
   </div>
   
   <div id="source">

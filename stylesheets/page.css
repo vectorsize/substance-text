@@ -2,11 +2,21 @@
 /* ------------ */
 
 body {
-  padding: 50px;
+  padding: 80px;
   color:#444;
   font-family:"HelveticaNeue", Helvetica, Arial, sans-serif;
   font-size:14px;
   line-height:1.5em;
+}
+
+
+#tools {
+  position: fixed;
+  left: 10px;
+  top: 190px;
+  
+  width: 50px;
+  height: 300px;
 }
 
 * {
@@ -19,6 +29,10 @@ body {
 
 :focus {
   outline: 0;
+}
+
+.empty {
+  background: #eee;
 }
 
 html {overflow:auto;}
@@ -52,12 +66,30 @@ h1 { margin-left: 10px; color:rgba(148,207,13,1); }
   border-radius:        5px;
 }
 
-code { font-family: Monaco, Consolas; font-size: 11px; padding: 0px 3px; background: #eee; }
 
-i { background: #eee; padding: 2px; }
-em { background: #eee; padding: 2px; }
+i { font-style: italic; }
+em { font-style: italic; }
 
-.content { 
+strong, b {font-weight: bold;}
+
+/* code */
+u {
+  font-family: Monaco, Consolas, "Lucida Console", monospace;
+  font-size: 12px;
+  padding: 0px 3px;
+  background: white;
+  border: 1px solid #DDD;
+}
+
+code {
+  font-family: Monaco, Consolas, "Lucida Console", monospace;
+  font-size: 12px;
+  padding: 0px 3px;
+  background: white;
+  border: 1px solid #DDD;
+}
+
+.content, .no-markup { 
   margin-top: 40px; padding: 10px;
   -webkit-border-radius:5px;
   -moz-border-radius:   5px;
@@ -65,7 +97,8 @@ em { background: #eee; padding: 2px; }
   border: 1px dashed transparent;
 }
 
-.content:hover {
+.no-markup:hover, .content:hover {
   border: 1px dashed #eee;
 }
 .content[contenteditable=true] { border-color: #aaa; }
+.no-markup[contenteditable=true] { border-color: #aaa; }
