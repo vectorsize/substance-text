@@ -109,10 +109,8 @@
     "em": "italic",
     "strong": "bold",
     "ul": "insertUnorderedList",
-    "ol": "insertOrderedList",
-    "indent": "indent",
-    "outdent": "outdent",
-    "link": "createLink"
+    "ol": "insertOrderedList"
+    // "link": "createLink" // for some reason Firefox can't work with that
   }
   
   // Proper
@@ -158,54 +156,54 @@
       if (sel+"".length == 0) return;
       
       if (tagActive(tag)) {
-        document.execCommand('removeFormat');
+        document.execCommand('removeFormat', false, true);
       } else {
         var sel = window.getSelection();
         var range = sel.getRangeAt(0);
-        document.execCommand('removeFormat');
+        document.execCommand('removeFormat', false, true);
         document.execCommand('insertHTML', false, '<'+tag+'>'+window.getSelection()+'</'+tag+'>');
       }
     }
     
     var commands = {
       execEM: function() {
-        if (!document.queryCommandState('italic')) document.execCommand('removeFormat');
+        if (!document.queryCommandState('italic', false, true)) document.execCommand('removeFormat', false, true);
         document.execCommand('italic', false, true);
         return false;
       },
 
       execSTRONG: function() {
-        if (!document.queryCommandState('bold')) document.execCommand('removeFormat');
-        document.execCommand('bold', true, true);
+        if (!document.queryCommandState('bold', false, true)) document.execCommand('removeFormat', false, true);
+        document.execCommand('bold', false, true);
         return false;
       },
       
       execCODE: function() {
-        if (!tagActive('code')) document.execCommand('removeFormat');
+        if (!tagActive('code')) document.execCommand('removeFormat', false, true);
         toggleTag('code');
         return false;
       },
 
       execUL: function() {
-        document.execCommand('insertUnorderedList', true, null);
+        document.execCommand('insertUnorderedList', false, true);
         return false;
       },
 
       execOL: function() {
-        document.execCommand('insertOrderedList', true, null);
+        document.execCommand('insertOrderedList', false, true);
         return false;
       },
 
       execINDENT: function() {
-        if (document.queryCommandState('insertOrderedList') || document.queryCommandState('insertUnorderedList')) {
-          document.execCommand('indent', false, null);
+        if (document.queryCommandState('insertOrderedList', false, true) || document.queryCommandState('insertUnorderedList', false, true)) {
+          document.execCommand('indent', false, true);
         }
         return false;
       },
 
       execOUTDENT: function() {
-        if (document.queryCommandState('insertOrderedList') || document.queryCommandState('insertUnorderedList')) {
-          document.execCommand('outdent', false, null);
+        if (document.queryCommandState('insertOrderedList', false, true) || document.queryCommandState('insertUnorderedList', false, true)) {
+          document.execCommand('outdent', false, true);
         }
         return false;
       },
@@ -232,7 +230,7 @@
       
       $controls.find('.command').removeClass('selected');
       _.each(COMMANDS, function(command, key) {
-        if (document.queryCommandState(command)) {
+        if (document.queryCommandState(command, false, true)) {
           $controls.find('.command.'+key).addClass('selected');
         }
         if (tagActive('code')) {
@@ -251,6 +249,8 @@
           $(activeElement).html('&laquo; '+options.placeholder+' &raquo;');
         }
       }
+      
+      $(options.controlsTarget).html('');
     }
     
     // Clean up the mess produced by contenteditable
@@ -341,7 +341,7 @@
         } else {
           // TODO: problematic when hitting enter on an empty div
           selectAll();
-          document.execCommand('insertHTML', false, "");
+          document.execCommand('delete', false, "");
           $(activeElement).addClass('empty');
         }
         
@@ -405,7 +405,7 @@
       updateCommandState();
       if (el.hasClass('empty')) {
         selectAll();
-        document.execCommand('insertHTML', false, "");
+        document.execCommand('delete', false, "");
       }
       
       $('.proper-commands a.command').click(function(e) {
