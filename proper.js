@@ -249,8 +249,6 @@
           $(activeElement).html('&laquo; '+options.placeholder+' &raquo;');
         }
       }
-      
-      $(options.controlsTarget).html('');
     }
     
     // Clean up the mess produced by contenteditable
