@@ -274,7 +274,7 @@
     function restoreSelection(range) {
       if (range) {
         if (window.getSelection) {
-          sel = window.getSelection();
+          var sel = window.getSelection();
           sel.removeAllRanges();
           sel.addRange(range);
         } else if (document.selection && range.select) {
