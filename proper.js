@@ -130,17 +130,21 @@
         };
     
     // Setup temporary hidden DOM Node, for sanitization
-    $('body').append($('<div id="proper_content"></div>').hide());
-    var rawContent = $('<div id="proper_raw_content" contenteditable="true"></div>');
-    rawContent.css('position', 'fixed');
-    rawContent.css('top', '20px');
-    rawContent.css('left', '20px');
-    rawContent.css('opacity', '0');
-    
-    $('body').append(rawContent);
+    var properContent = $('<div id="proper_content"></div>')
+      .hide()
+      .appendTo(document.body);
+    // TODO: michael, explain why these css properties are needed -- timjb
+    var rawContent = $('<div id="proper_raw_content" contenteditable="true"></div>')
+      .css({
+        position: 'fixed',
+        top: '20px',
+        left: '20px',
+        opacity: '0'
+      })
+      .appendTo(document.body);
     
     // Commands
-    // -----------
+    // --------
     
     function tagActive(element) {
       var sel = window.getSelection();
@@ -153,7 +157,7 @@
       var sel = window.getSelection();
       var range = sel.getRangeAt(0);
       
-      if (sel+"".length == 0) return;
+      if (sel.toString() === '') return;
       
       if (tagActive(tag)) {
         document.execCommand('removeFormat', false, true);
@@ -169,48 +173,40 @@
       execEM: function() {
         if (!document.queryCommandState('italic', false, true)) document.execCommand('removeFormat', false, true);
         document.execCommand('italic', false, true);
-        return false;
       },
 
       execSTRONG: function() {
         if (!document.queryCommandState('bold', false, true)) document.execCommand('removeFormat', false, true);
         document.execCommand('bold', false, true);
-        return false;
       },
       
       execCODE: function() {
         if (!tagActive('code')) document.execCommand('removeFormat', false, true);
         toggleTag('code');
-        return false;
       },
 
       execUL: function() {
         document.execCommand('insertUnorderedList', false, true);
-        return false;
       },
 
       execOL: function() {
         document.execCommand('insertOrderedList', false, true);
-        return false;
       },
 
       execINDENT: function() {
         if (document.queryCommandState('insertOrderedList', false, true) || document.queryCommandState('insertUnorderedList', false, true)) {
           document.execCommand('indent', false, true);
         }
-        return false;
       },
 
       execOUTDENT: function() {
         if (document.queryCommandState('insertOrderedList', false, true) || document.queryCommandState('insertUnorderedList', false, true)) {
           document.execCommand('outdent', false, true);
         }
-        return false;
       },
       
       execLINK: function() {
         document.execCommand('createLink', false, prompt('URL:'));
-        return false;
       },
 
       showHTML: function() {
@@ -220,8 +216,7 @@
     
     // TODO: enable proper sanitizing that allows markup to be pasted too
     function sanitize() {      
-      var rawContent = document.getElementById('proper_raw_content');
-      $('#proper_content').html($(rawContent).text());
+      properContent.html(rawContent.text());
     }
     
     function updateCommandState() {
@@ -239,8 +234,7 @@
       });
     }
     
-    // Used for placeholders
-    function checkEmpty() {
+    function maybeInsertPlaceholder() {
       if ($(activeElement).text().trim().length === 0) {
         $(activeElement).addClass('empty');
         if (options.markup) {
@@ -248,6 +242,13 @@
         } else {
           $(activeElement).html('&laquo; '+options.placeholder+' &raquo;');
         }
+      }
+    }
+    
+    function maybeRemovePlaceholder() {
+      if ($(activeElement).hasClass('empty')) {
+        selectAll();
+        document.execCommand('delete', false, "");
       }
     }
     
@@ -292,14 +293,16 @@
     }
     
     function bindEvents(el) {
-      $(el).unbind('paste');
-      $(el).unbind('keydown');
-      $(el).unbind('keyup');
-      $(el).unbind('blur');
+      $(el)
+        .unbind('paste')
+        .unbind('keydown')
+        .unbind('keyup')
+        .unbind('focus')
+        .unbind('blur');
       
       $(el).bind('paste', function() {
         var selection = saveSelection();
-        $('#proper_raw_content').focus();
+        rawContent.focus();
         
         // Immediately sanitize pasted content
         setTimeout(function() {
@@ -308,29 +311,27 @@
           $(el).focus();
           
           // Avoid nested paragraph correction resulting from paste
-          var content = $('#proper_content').html().trim();
+          var content = properContent.html().trim();
 
           // For some reason last </p> gets injected anyway
           document.execCommand('insertHTML', false, content);
-          $('#proper_raw_content').html('');
+          rawContent.html('');
         }, 1);
       });
       
       // Prevent multiline
       $(el).bind('keydown', function(e) {
-        if (!options.multiline && e.keyCode === 13) {
+        if ((!options.multiline && e.keyCode === 13) ||
+            (e.keyCode === 8 && $(activeElement).text().trim().length === 0)) {
           e.stopPropagation();
-          return false;
-        }
-        
-        if (e.keyCode == 8 && $(activeElement).text().trim().length == 0) {
-          e.stopPropagation();
-          return false;
+          e.preventDefault();
         }
       });
       
-      $(el).bind('blur', checkEmpty);
-      $(el).bind('click', updateCommandState);
+      $(el)
+        .bind('focus', maybeRemovePlaceholder)
+        .bind('blur', maybeInsertPlaceholder)
+        .bind('click', updateCommandState);
       
       $(el).bind('keyup', function(e) {        
         updateCommandState();
@@ -362,9 +363,10 @@
     // -----------
 
     self.deactivate = function() {
-      $(activeElement).attr('contenteditable', 'false');
-      $(activeElement).unbind('paste');
-      $(activeElement).unbind('keydown');
+      $(activeElement)
+        .attr('contenteditable', 'false')
+        .unbind('paste')
+        .unbind('keydown');
       $('.proper-commands').remove();
       self.unbind('changed');
     };
@@ -390,29 +392,32 @@
       
       // Keyboard bindings
       if (options.markup) {
-        $(activeElement).bind('keydown', 'ctrl+shift+e', commands.execEM);
-        $(activeElement).bind('keydown', 'ctrl+shift+s', commands.execSTRONG);
-        $(activeElement).bind('keydown', 'ctrl+shift+c', commands.execCODE);
-        $(activeElement).bind('keydown', 'ctrl+shift+l', commands.execLINK);
-        $(activeElement).bind('keydown', 'ctrl+shift+b', commands.execUL);
-        $(activeElement).bind('keydown', 'ctrl+shift+n', commands.execOL);
-        $(activeElement).bind('keydown', 'tab', commands.execINDENT);
-        $(activeElement).bind('keydown', 'shift+tab', commands.execOUTDENT);
+        function preventDefaultAnd(executeThisFunction) {
+          return function (event) {
+            event.preventDefault();
+            executeThisFunction();
+          };
+        }
+        $(activeElement)
+          .keydown('ctrl+shift+e', preventDefaultAnd(commands.execEM))
+          .keydown('ctrl+shift+s', preventDefaultAnd(commands.execSTRONG))
+          .keydown('ctrl+shift+c', preventDefaultAnd(commands.execCODE))
+          .keydown('ctrl+shift+l', preventDefaultAnd(commands.execLINK))
+          .keydown('ctrl+shift+b', preventDefaultAnd(commands.execUL))
+          .keydown('ctrl+shift+n', preventDefaultAnd(commands.execOL))
+          .keydown('tab',          preventDefaultAnd(commands.execINDENT))
+          .keydown('shift+tab',    preventDefaultAnd(commands.execOUTDENT));
       }
       
       updateCommandState();
-      if (el.hasClass('empty')) {
-        selectAll();
-        document.execCommand('delete', false, "");
-      }
       
       $('.proper-commands a.command').click(function(e) {
+        e.preventDefault();
         commands['exec'+ $(e.currentTarget).attr('command').toUpperCase()]();
         updateCommandState();
         setTimeout(function() {
           self.trigger('changed');
         }, 10);
-        return false;
       });
     };
     
