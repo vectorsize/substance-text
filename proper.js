@@ -96,7 +96,7 @@
     <div class="proper-commands"> \
       <a href="#" title="Emphasis (CTRL+SHIFT+E)" class="command em" command="em"><div>Emphasis</div></a> \
       <a href="#" title="Strong (CTRL+SHIFT+S)" class="command strong" command="strong"><div>Strong</div></a> \
-      <!--<a href="#" title="Inline Code (CTRL+SHIFT+C)" class="command code" command="code"><div>Code</div></a>--> \
+      <a href="#" title="Inline Code (CTRL+SHIFT+C)" class="command code" command="code"><div>Code</div></a> \
       <a title="Link (CTRL+SHIFT+L)" href="#" class="command link" command="link"><div>Link</div></a>\
       <a href="#" title="Bullet List (CTRL+SHIFT+B)" class="command ul" command="ul"><div>Bullets List</div></a>\
       <a href="#" title="Numbered List (CTRL+SHIFT+N)" class="command ol" command="ol"><div>Numbered List</div></a>\
@@ -126,7 +126,8 @@
         defaultOptions = { // default options
           multiline: true,
           markup: true,
-          placeholder: 'Enter Text'
+          placeholder: 'Enter Text',
+          codeFontFamily: 'Monaco, Consolas, "Lucida Console", monospace'
         };
     
     // Setup temporary hidden DOM Node, for sanitization
@@ -146,29 +147,6 @@
     // Commands
     // --------
     
-    function tagActive(element) {
-      var sel = window.getSelection();
-      var range = sel.getRangeAt(0);
-      return range.startContainer.parentNode.localName === element || range.endContainer.parentNode.localName === element;
-    }
-    
-    // A proper implementation of execCommand
-    function toggleTag(tag) {
-      var sel = window.getSelection();
-      var range = sel.getRangeAt(0);
-      
-      if (sel.toString() === '') return;
-      
-      if (tagActive(tag)) {
-        document.execCommand('removeFormat', false, true);
-      } else {
-        var sel = window.getSelection();
-        var range = sel.getRangeAt(0);
-        document.execCommand('removeFormat', false, true);
-        document.execCommand('insertHTML', false, '<'+tag+'>'+window.getSelection()+'</'+tag+'>');
-      }
-    }
-    
     var commands = {
       execEM: function() {
         if (!document.queryCommandState('italic', false, true)) document.execCommand('removeFormat', false, true);
@@ -181,8 +159,18 @@
       },
       
       execCODE: function() {
-        if (!tagActive('code')) document.execCommand('removeFormat', false, true);
-        toggleTag('code');
+        if (cmpFontFamily(document.queryCommandValue('fontName'), options.codeFontFamily)) {
+          document.execCommand('removeFormat', false, true);
+          $(activeElement).find('.code-span').filter(function() {
+            return !cmpFontFamily($(this).css('font-family'), options.codeFontFamily);
+          }).remove();
+        } else {
+          document.execCommand('fontName', false, options.codeFontFamily);
+          $(activeElement).find('font').addClass('proper-code');
+          $(activeElement).find('span').filter(function() {
+            return cmpFontFamily($(this).css('font-family'), options.codeFontFamily);
+          }).addClass('proper-code');
+        }
       },
 
       execUL: function() {
@@ -219,6 +207,50 @@
       properContent.html(rawContent.text());
     }
     
+    function normalizeFontFamily(s) {
+      return s.replace(/\s*,\s*/g, ',').replace(/'/g, '"');
+    }
+    
+    function cmpFontFamily(a, b) {
+      return normalizeFontFamily(a) === normalizeFontFamily(b);
+    }
+    
+    function getCorrectTagName(node) {
+      var tagName = node.nodeName.toLowerCase();
+      
+      if (tagName === 'i') return 'em';
+      if (tagName === 'b') return 'strong';
+      if (tagName === 'font') return 'code';
+      if (tagName === 'span') {
+        if (node.style.fontWeight === 'bold') return 'strong';
+        if (node.style.fontStyle === 'italic') return 'em';
+        if (cmpFontFamily(node.style.fontFamily, options.codeFontFamily)) return 'code';
+      }
+      return tagName;
+    }
+    
+    function semantifyContents(node) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        return node.data.replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;');
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        var tagName = getCorrectTagName(node);
+        
+        if (tagName === 'br') return '<br />';
+        
+        var result = '<'+tagName+'>';
+        var children = node.childNodes;
+        for (var i = 0, l = children.length; i < l; i++) {
+          result += semantifyContents(children[i]);
+        }
+        result += '</'+tagName+'>';
+        return result;
+      } else {
+        return '';
+      }
+    }
+    
     function updateCommandState() {
       if (!options.markup) return;
       $(activeElement).focus();
@@ -228,7 +260,7 @@
         if (document.queryCommandState(command, false, true)) {
           $controls.find('.command.'+key).addClass('selected');
         }
-        if (tagActive('code')) {
+        if (cmpFontFamily(document.queryCommandValue('fontName'), options.codeFontFamily)) {
           $controls.find('.command.code').addClass('selected');
         }
       });
@@ -250,14 +282,6 @@
         selectAll();
         document.execCommand('delete', false, "");
       }
-    }
-    
-    // Clean up the mess produced by contenteditable
-    function semantify(html) {
-      return html.replace(/<i>/g, '<em>')
-                 .replace(/<\/i>/g, '</em>')
-                 .replace(/<b>/g, '<strong>')
-                 .replace(/<\/b>/g, '</strong>');
     }
     
     function saveSelection() {
@@ -387,7 +411,7 @@
       // Setup controls
       if (options.markup) {
         $controls = $(controlsTpl); 
-        $controls.appendTo($(options.controlsTarget));          
+        $controls.appendTo($(options.controlsTarget));
       }
       
       // Keyboard bindings
@@ -426,7 +450,13 @@
       if ($(activeElement).hasClass('empty')) return '';
       
       if (options.markup) {
-        return activeElement ? semantify($(activeElement).html()).trim() : '';
+        if (!activeElement) return '';
+        
+        var result = '';
+        _.each($(activeElement).get(0).childNodes, function (child) {
+          result += semantifyContents(child);
+        })
+        return result;
       } else {
         if (options.multiline) {
           return _.stripTags($(activeElement).html().replace(/<div>/g, '\n')

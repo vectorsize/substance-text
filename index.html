@@ -21,7 +21,11 @@
       window.editor = new Proper();
       
       $('.content').click(function() {
-        editor.activate($(this), {placeholder: 'Enter Text', controlsTarget: $('#tools')});
+        editor.activate($(this), {
+          placeholder: 'Enter Text',
+          controlsTarget: $('#tools'),
+          codeFontFamily: 'Monaco, Consolas, "Lucida Console", monospace'
+        });
         
         // Update node when editor commands are applied
         editor.bind('changed', function() {
@@ -58,7 +62,7 @@
       <p>
         Known issues:
         <ul>
-          <li>Does not yet consider markup for pasted content</li>
+          <li>Does not yet consider <code>markup</code> for pasted content</li>
         </ul>
       </p>
     </div>
