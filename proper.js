@@ -159,8 +159,8 @@
       },
       
       execCODE: function() {
+        document.execCommand('removeFormat', false, true);
         if (cmpFontFamily(document.queryCommandValue('fontName'), options.codeFontFamily)) {
-          document.execCommand('removeFormat', false, true);
           $(activeElement).find('.code-span').filter(function() {
             return !cmpFontFamily($(this).css('font-family'), options.codeFontFamily);
           }).remove();
