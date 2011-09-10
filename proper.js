@@ -194,6 +194,7 @@
       },
       
       execLINK: function() {
+        document.execCommand('removeFormat', false, true);
         document.execCommand('createLink', false, window.prompt('URL:', 'http://'));
       },
 
@@ -447,8 +448,8 @@
       
       $('.proper-commands a.command').click(function(e) {
         e.preventDefault();
-        commands['exec'+ $(e.currentTarget).attr('command').toUpperCase()]();
         $(activeElement).focus();
+        commands['exec'+ $(e.currentTarget).attr('command').toUpperCase()]();
         updateCommandState();
         setTimeout(function() {
           self.trigger('changed');
