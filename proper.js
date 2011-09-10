@@ -194,6 +194,7 @@
       },
       
       execLINK: function() {
+        document.execCommand('removeFormat', false, true);
         document.execCommand('createLink', false, window.prompt('URL:', 'http://'));
       },
 
