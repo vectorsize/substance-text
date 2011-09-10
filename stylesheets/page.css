@@ -73,15 +73,7 @@ em { font-style: italic; }
 strong, b {font-weight: bold;}
 
 /* code */
-u {
-  font-family: Monaco, Consolas, "Lucida Console", monospace;
-  font-size: 12px;
-  padding: 0px 3px;
-  background: white;
-  border: 1px solid #DDD;
-}
-
-code {
+code, .proper-code {
   font-family: Monaco, Consolas, "Lucida Console", monospace;
   font-size: 12px;
   padding: 0px 3px;
