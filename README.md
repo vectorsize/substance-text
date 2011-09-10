@@ -9,6 +9,10 @@ The goal is to output proper semantic HTML by restricting the set of possible ta
 Changelog
 -------------------
 
+**0.3.0**
+
+Solves a number of Firefox related issues and adds native support for `code` annotations.
+
 **0.2.1**
 
 Mozilla compatibility.
@@ -20,3 +24,9 @@ Recognition of command states. Support for keybindings.
 **0.1.0**
 
 Initial Version.
+
+
+Credits
+-------------------
+
+Tim Baumann ([timjb](http://github.com/timjb)) for his work on 0.3.0.
