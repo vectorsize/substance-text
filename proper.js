@@ -408,12 +408,31 @@
         }, 1);
       });
       
+      function isTag(node, tag) {
+        if (!node || node === activeElement) return false;
+        if (node.tagName && node.tagName.toLowerCase() === tag) return true;
+        return isTag(node.parentNode, tag);
+      }
+      
       // Prevent multiline
       $(el).bind('keydown', function(e) {
-        if ((!options.multiline && e.keyCode === 13) ||
-            (e.keyCode === 8 && $(activeElement).text().trim().length === 0)) {
+        if (!options.multiline && e.keyCode === 13) {
           e.stopPropagation();
           e.preventDefault();
+          return;
+        }
+        if ($.browser.mozilla) {
+          var selectionStart = saveSelection().startContainer;
+          if (options.multiline && !isTag(selectionStart, 'p') && !isTag(selectionStart, 'ul')) {
+            document.execCommand('insertParagraph', false, true);
+          }
+          if (e.keyCode === 13 && !e.shiftKey) {
+            window.setTimeout(function () {
+              if (!isTag(selectionStart, 'ul')) {
+                document.execCommand('insertParagraph', false, true);
+              }
+            }, 10);
+          }
         }
       });
       
