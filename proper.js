@@ -3,10 +3,23 @@
 //     For all details and documentation:
 //     http://github.com/michael/proper
 
+// Goals:
+//
+// * Annotations (strong, em, code, link) are exclusive. No text can be both
+//   emphasized and strong.
+// * The output is semantic, valid HTML.
+// * Cross-browser compatibility: Support the most recent versions of Chrome,
+//   Safari, Firefox and Internet Explorer. Proper should behave the same on
+//   all these platforms (if possible).
+//
+// Proper uses contenteditable to support these features. Unfortunately, every
+// browser handles contenteditable differently, which is why many
+// browser-specific workarounds are required.
+
 (function(){
   
   // _.Events (borrowed from Backbone.js)
-  // -----------------
+  // ------------------------------------
   
   // A module that can be mixed in to *any object* in order to provide it with
   // custom events. You may `bind` or `unbind` a callback function to an event;
@@ -147,7 +160,12 @@
     // Commands
     // --------
     
-    function fixStyleLis() {
+    // In Firefox, if you select multiple <li>s and run
+    // `execCommand('bold', false, true)` (italic, ...),
+    // `font-weight: bold;` is applied to the selected <li>s. This function
+    // fixes this by wrapping the <li>s' contents in <span>s, that are given
+    // the <li>'s style.
+    function fixStyleLis() 
       if ($.browser.mozilla) {
         var lis = $(activeElement).find('li[style]');
         if (lis.length > 0) {
@@ -168,6 +186,7 @@
             this.appendChild(span);
           });
           
+          // Hacks to make the selection the same as before.
           if (range.startContainer.nodeName === 'LI') {
             range.setStartBefore(range.startContainer);
           }
@@ -242,10 +261,6 @@
       execLINK: function() {
         document.execCommand('removeFormat', false, true);
         document.execCommand('createLink', false, window.prompt('URL:', 'http://'));
-      },
-
-      showHTML: function() {
-        alert($(this.el).html());
       }
     };
     
@@ -254,13 +269,19 @@
       properContent.html(rawContent.text());
     }
     
-    function normalizeFontFamily(s) {
-      return (''+s).replace(/\s*,\s*/g, ',').replace(/'/g, '"');
-    }
-    
+    // Returns true if a and b is the same font family. This is used to check
+    // if the current font family (`document.queryCommandValue('fontName')`)
+    // is the font family that's used to style code.
     function cmpFontFamily(a, b) {
+      function normalizeFontFamily(s) {
+        return (''+s).replace(/\s*,\s*/g, ',').replace(/'/g, '"');
+      }
+      
       a = normalizeFontFamily(a);
       b = normalizeFontFamily(b);
+      // Internet Explorer's `document.queryCommandValue('fontName')` returns
+      // only the applied font family (e.g. `Consolas`), not the full font
+      // stack (e.g. `Monaco, Consolas, "Lucida Console", monospace`).
       if ($.browser.msie) {
         if (a.split(',').length === 1) {
           return b.split(',').indexOf(a) > -1;
@@ -274,19 +295,6 @@
       }
     }
     
-    function getCorrectTagName(node) {
-      var tagName = node.nodeName.toLowerCase();
-      
-      if (tagName === 'i') return 'em';
-      if (tagName === 'b') return 'strong';
-      if (tagName === 'font') return 'code';
-      if (tagName === 'span') {
-        if (node.style.fontWeight === 'bold') return 'strong';
-        if (node.style.fontStyle === 'italic') return 'em';
-        if (cmpFontFamily(node.style.fontFamily, options.codeFontFamily)) return 'code';
-      }
-      return tagName;
-    }
     
     function escape(text) {
       return text.replace(/&/g, '&amp;')
@@ -295,7 +303,24 @@
                  .replace(/"/g, '&quot;');
     }
     
+    // Recursively walks the dom and returns the semantified contents. Replaces
+    // presentational elements (e.g. `<b>`) with their semantic counterparts
+    // (e.g. `<strong>`).
     function semantifyContents(node) {
+      function getCorrectTagName(node) {
+        var tagName = node.nodeName.toLowerCase();
+        
+        if (tagName === 'i') return 'em';
+        if (tagName === 'b') return 'strong';
+        if (tagName === 'font') return 'code';
+        if (tagName === 'span') {
+          if (node.style.fontWeight === 'bold') return 'strong';
+          if (node.style.fontStyle === 'italic') return 'em';
+          if (cmpFontFamily(node.style.fontFamily, options.codeFontFamily)) return 'code';
+        }
+        return tagName;
+      }
+      
       if (node.nodeType === Node.TEXT_NODE) {
         return escape(node.data);
       } else if (node.nodeType === Node.ELEMENT_NODE) {
@@ -316,6 +341,7 @@
       }
     }
     
+    // Update the control buttons' state.
     function updateCommandState() {
       if (!options.markup) return;
       
@@ -330,6 +356,8 @@
       });
     }
     
+    // If the activeElement has no content, display the placeholder and give
+    // the element the class `empty`.
     function maybeInsertPlaceholder() {
       if ($(activeElement).text().trim().length === 0) {
         $(activeElement).addClass('empty');
@@ -341,6 +369,8 @@
       }
     }
     
+    // If the activeElement has the class `empty`, remove the placeholder and
+    // the class.
     function maybeRemovePlaceholder() {
       if ($(activeElement).hasClass('empty')) {
         $(activeElement).removeClass('empty');
@@ -349,30 +379,33 @@
       }
     }
     
+    // Returns the current selection as a dom range.
     function saveSelection() {
       if (window.getSelection) {
         sel = window.getSelection();
         if (sel.getRangeAt && sel.rangeCount) {
           return sel.getRangeAt(0);
         }
-      } else if (document.selection && document.selection.createRange) {
+      } else if (document.selection && document.selection.createRange) { // IE
         return document.selection.createRange();
       }
       return null;
     }
 
+    // Selects the given dom range.
     function restoreSelection(range) {
       if (range) {
         if (window.getSelection) {
           var sel = window.getSelection();
           sel.removeAllRanges();
           sel.addRange(range);
-        } else if (document.selection && range.select) {
+        } else if (document.selection && range.select) { // IE
           range.select();
         }
       }
     }
     
+    // Selects the whole editing area.
     function selectAll() {
       range = document.createRange();
       range.selectNodeContents($(activeElement)[0]);
@@ -545,7 +578,7 @@
     };
     
     // Expose public API
-    // -----------
+    // -----------------
     
     _.extend(self, _.Events);
     return self;
