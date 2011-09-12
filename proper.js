@@ -118,16 +118,8 @@
       <br class="clear"/>\
     </div>';
   
-  var COMMANDS = {
-    "em": "italic",
-    "strong": "bold",
-    "ul": "insertUnorderedList",
-    "ol": "insertOrderedList"
-    // "link": "createLink" // for some reason Firefox can't work with that
-  }
-  
   // Proper
-  // -----------
+  // ------
   
   this.Proper = function(options) {
     var activeElement = null, // element that's being edited
@@ -165,7 +157,7 @@
     // `font-weight: bold;` is applied to the selected <li>s. This function
     // fixes this by wrapping the <li>s' contents in <span>s, that are given
     // the <li>'s style.
-    function fixStyleLis() 
+    function fixStyleLis() {
       if ($.browser.mozilla) {
         var lis = $(activeElement).find('li[style]');
         if (lis.length > 0) {
@@ -197,37 +189,54 @@
         }
       }
     }
-    
+
+    function exec(cmd) {
+      var command = commands[cmd];
+      if (command.exec) {
+        command.exec();
+      } else {
+        if (command.isActive()) {
+          command.toggleOff();
+        } else {
+          command.toggleOn();
+        }
+      }
+    }
+
     var commands = {
-      execEM: function() {
-        if (!document.queryCommandState('italic', false, true)) {
+      em: {
+        isActive: function() {
+          return document.queryCommandState('italic', false, true);
+        },
+        toggleOn: function() {
           document.execCommand('removeFormat', false, true);
           document.execCommand('italic', false, true);
           fixStyleLis();
-        } else {
+        },
+        toggleOff: function() {
           document.execCommand('italic', false, true);
         }
       },
 
-      execSTRONG: function() {
-        if (!document.queryCommandState('bold', false, true)) {
+      strong: {
+        isActive: function() {
+          return document.queryCommandState('bold', false, true);
+        },
+        toggleOn: function() {
           document.execCommand('removeFormat', false, true);
           document.execCommand('bold', false, true);
           fixStyleLis();
-        } else {
+        },
+        toggleOff: function () {
           document.execCommand('bold', false, true);
         }
       },
-      
-      execCODE: function() {
-        if (cmpFontFamily(document.queryCommandValue('fontName'), options.codeFontFamily)) {
-          // remove <code>
-          document.execCommand('removeFormat', false, true);
-          $(activeElement).find('.code-span').filter(function() {
-            return !cmpFontFamily($(this).css('font-family'), options.codeFontFamily);
-          }).remove();
-        } else {
-          // add <code>
+
+      code: {
+        isActive: function() {
+          return cmpFontFamily(document.queryCommandValue('fontName'), options.codeFontFamily);
+        },
+        toggleOn: function() {
           document.execCommand('removeFormat', false, true);
           document.execCommand('fontName', false, options.codeFontFamily);
           fixStyleLis();
@@ -235,32 +244,56 @@
           $(activeElement).find('span').filter(function() {
             return cmpFontFamily($(this).css('font-family'), options.codeFontFamily);
           }).addClass('proper-code');
+        },
+        toggleOff: function () {
+          document.execCommand('removeFormat', false, true);
+          $(activeElement).find('.code-span').filter(function() {
+            return !cmpFontFamily($(this).css('font-family'), options.codeFontFamily);
+          }).remove();
         }
       },
 
-      execUL: function() {
-        document.execCommand('insertUnorderedList', false, true);
-      },
-
-      execOL: function() {
-        document.execCommand('insertOrderedList', false, true);
-      },
-
-      execINDENT: function() {
-        if (document.queryCommandState('insertOrderedList', false, true) || document.queryCommandState('insertUnorderedList', false, true)) {
-          document.execCommand('indent', false, true);
+      link: {
+        exec: function() {
+          document.execCommand('removeFormat', false, true);
+          document.execCommand('createLink', false, window.prompt('URL:', 'http://'));
         }
       },
 
-      execOUTDENT: function() {
-        if (document.queryCommandState('insertOrderedList', false, true) || document.queryCommandState('insertUnorderedList', false, true)) {
-          document.execCommand('outdent', false, true);
+      ul: {
+        isActive: function() {
+          return document.queryCommandState('insertUnorderedList', false, true);
+        },
+        exec: function() {
+          document.execCommand('insertUnorderedList', false, true);
         }
       },
-      
-      execLINK: function() {
-        document.execCommand('removeFormat', false, true);
-        document.execCommand('createLink', false, window.prompt('URL:', 'http://'));
+
+      ol: {
+        isActive: function() {
+          return document.queryCommandState('insertOrderedList', false, true);
+        },
+        exec: function() {
+          document.execCommand('insertOrderedList', false, true);
+        }
+      },
+
+      indent: {
+        exec: function() {
+          if (document.queryCommandState('insertOrderedList', false, true) ||
+              document.queryCommandState('insertUnorderedList', false, true)) {
+            document.execCommand('indent', false, true);
+          }
+        }
+      },
+
+      outdent: {
+        exec: function() {
+          if (document.queryCommandState('insertOrderedList', false, true) ||
+              document.queryCommandState('insertUnorderedList', false, true)) {
+            document.execCommand('outdent', false, true);
+          }
+        }
       }
     };
     
@@ -346,12 +379,9 @@
       if (!options.markup) return;
       
       $controls.find('.command').removeClass('selected');
-      _.each(COMMANDS, function(command, key) {
-        if (document.queryCommandState(command, false, true)) {
-          $controls.find('.command.'+key).addClass('selected');
-        }
-        if (cmpFontFamily(document.queryCommandValue('fontName'), options.codeFontFamily)) {
-          $controls.find('.command.code').addClass('selected');
+      _.each(commands, function(command, name) {
+        if (command.isActive && command.isActive()) {
+          $controls.find('.command.'+name).addClass('selected');
         }
       });
     }
@@ -454,6 +484,7 @@
           e.preventDefault();
           return;
         }
+        // By default, Firefox doesn't create paragraphs. Fix this.
         if ($.browser.mozilla) {
           var selectionStart = saveSelection().startContainer;
           if (options.multiline && !isTag(selectionStart, 'p') && !isTag(selectionStart, 'ul')) {
@@ -524,21 +555,21 @@
       
       // Keyboard bindings
       if (options.markup) {
-        function preventDefaultAnd(executeThisFunction) {
-          return function (event) {
-            event.preventDefault();
-            executeThisFunction();
+        function execLater(cmd) {
+          return function(e) {
+            e.preventDefault();
+            exec(cmd);
           };
         }
         $(activeElement)
-          .keydown('ctrl+shift+e', preventDefaultAnd(commands.execEM))
-          .keydown('ctrl+shift+s', preventDefaultAnd(commands.execSTRONG))
-          .keydown('ctrl+shift+c', preventDefaultAnd(commands.execCODE))
-          .keydown('ctrl+shift+l', preventDefaultAnd(commands.execLINK))
-          .keydown('ctrl+shift+b', preventDefaultAnd(commands.execUL))
-          .keydown('ctrl+shift+n', preventDefaultAnd(commands.execOL))
-          .keydown('tab',          preventDefaultAnd(commands.execINDENT))
-          .keydown('shift+tab',    preventDefaultAnd(commands.execOUTDENT));
+          .keydown('ctrl+shift+e', execLater('em'))
+          .keydown('ctrl+shift+s', execLater('strong'))
+          .keydown('ctrl+shift+c', execLater('code'))
+          .keydown('ctrl+shift+l', execLater('link'))
+          .keydown('ctrl+shift+b', execLater('ul'))
+          .keydown('ctrl+shift+n', execLater('ol'))
+          .keydown('tab',          execLater('indent'))
+          .keydown('shift+tab',    execLater('outdent'));
       }
       
       $(activeElement).focus();
@@ -547,11 +578,9 @@
       $('.proper-commands a.command').click(function(e) {
         e.preventDefault();
         $(activeElement).focus();
-        commands['exec'+ $(e.currentTarget).attr('command').toUpperCase()]();
+        exec($(e.currentTarget).attr('command'));
         updateCommandState();
-        setTimeout(function() {
-          self.trigger('changed');
-        }, 10);
+        setTimeout(function() { self.trigger('changed'); }, 10);
       });
     };
     
