@@ -152,44 +152,6 @@
     // Commands
     // --------
     
-    // In Firefox, if you select multiple <li>s and run
-    // `execCommand('bold', false, true)` (italic, ...),
-    // `font-weight: bold;` is applied to the selected <li>s. This function
-    // fixes this by wrapping the <li>s' contents in <span>s, that are given
-    // the <li>'s style.
-    function fixStyleLis() {
-      if ($.browser.mozilla) {
-        var lis = $(activeElement).find('li[style]');
-        if (lis.length > 0) {
-          var range = saveSelection();
-          
-          // TODO: make this dom operation more efficient
-          lis.each(function() {
-            var span = document.createElement('span');
-            span.setAttribute('style', this.getAttribute('style'));
-            this.removeAttribute('style');
-            
-            var child;
-            while (child = this.firstChild) {
-              this.removeChild(child);
-              span.appendChild(child);
-            }
-            
-            this.appendChild(span);
-          });
-          
-          // Hacks to make the selection the same as before.
-          if (range.startContainer.nodeName === 'LI') {
-            range.setStartBefore(range.startContainer);
-          }
-          if (range.endContainer.nodeName === 'LI') {
-            range.setEndAfter(range.endContainer);
-          }
-          restoreSelection(range);
-        }
-      }
-    }
-
     function exec(cmd) {
       var command = commands[cmd];
       if (command.exec) {
@@ -203,15 +165,31 @@
       }
     }
 
-    var commands = {
+    function removeFormat() {
+      document.execCommand('removeFormat', false, true);
+      _.each(['em', 'strong', 'code'], function (cmd) {
+        var command = commands[cmd];
+        if (command.isActive()) {
+          command.toggleOff();
+        }
+      });
+    }
+
+    // Give code elements (= monospace font) the class `proper-code`.
+    function addCodeClasses() {
+      $(activeElement).find('font').addClass('proper-code');
+    }
+
+    var nbsp = $('<span>&nbsp;</span>').text();
+
+    var commands = self.commands = {
       em: {
         isActive: function() {
           return document.queryCommandState('italic', false, true);
         },
         toggleOn: function() {
-          document.execCommand('removeFormat', false, true);
+          removeFormat();
           document.execCommand('italic', false, true);
-          fixStyleLis();
         },
         toggleOff: function() {
           document.execCommand('italic', false, true);
@@ -223,9 +201,8 @@
           return document.queryCommandState('bold', false, true);
         },
         toggleOn: function() {
-          document.execCommand('removeFormat', false, true);
+          removeFormat();
           document.execCommand('bold', false, true);
-          fixStyleLis();
         },
         toggleOff: function () {
           document.execCommand('bold', false, true);
@@ -237,25 +214,34 @@
           return cmpFontFamily(document.queryCommandValue('fontName'), options.codeFontFamily);
         },
         toggleOn: function() {
-          document.execCommand('removeFormat', false, true);
+          removeFormat();
           document.execCommand('fontName', false, options.codeFontFamily);
-          fixStyleLis();
-          $(activeElement).find('font').addClass('proper-code');
-          $(activeElement).find('span').filter(function() {
-            return cmpFontFamily($(this).css('font-family'), options.codeFontFamily);
-          }).addClass('proper-code');
+          addCodeClasses();
         },
         toggleOff: function () {
-          document.execCommand('removeFormat', false, true);
-          $(activeElement).find('.code-span').filter(function() {
-            return !cmpFontFamily($(this).css('font-family'), options.codeFontFamily);
-          }).remove();
+          var sel;
+          if ($.browser.webkit && (sel = saveSelection()).collapsed) {
+            // Workaround for Webkit. Without this, the user wouldn't be
+            // able to disable <code> when there's no selection.
+            var container = sel.endContainer
+            ,   offset = sel.endOffset;
+            container.data = container.data.slice(0, offset)
+                           + nbsp
+                           + container.data.slice(offset);
+            var newSel = document.createRange();
+            newSel.setStart(container, offset);
+            newSel.setEnd(container, offset+1);
+            restoreSelection(newSel);
+            document.execCommand('removeFormat', false, true);
+          } else {
+            document.execCommand('removeFormat', false, true);
+          }
         }
       },
 
       link: {
         exec: function() {
-          document.execCommand('removeFormat', false, true);
+          removeFormat();
           document.execCommand('createLink', false, window.prompt('URL:', 'http://'));
         }
       },
@@ -346,11 +332,6 @@
         if (tagName === 'i') return 'em';
         if (tagName === 'b') return 'strong';
         if (tagName === 'font') return 'code';
-        if (tagName === 'span') {
-          if (node.style.fontWeight === 'bold') return 'strong';
-          if (node.style.fontStyle === 'italic') return 'em';
-          if (cmpFontFamily(node.style.fontFamily, options.codeFontFamily)) return 'code';
-        }
         return tagName;
       }
       
@@ -507,6 +488,7 @@
       
       $(el).bind('keyup', function(e) {        
         updateCommandState();
+        addCodeClasses();
         // Trigger change events, but consolidate them to 200ms time slices
         setTimeout(function() {
           // Skip if there's already a change pending
@@ -574,6 +556,11 @@
       
       $(activeElement).focus();
       updateCommandState();
+      
+      // Use <b>, <i> and <font face="monospace"> instead of style attributes.
+      // This is convenient because these inline element can easily be replaced
+      // by their more semantic counterparts (<strong>, <em> and <code>);
+      document.execCommand('styleWithCSS', false, false);
       
       $('.proper-commands a.command').click(function(e) {
         e.preventDefault();
