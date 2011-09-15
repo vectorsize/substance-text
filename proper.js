@@ -418,11 +418,9 @@
     
     // Selects the whole editing area.
     function selectAll() {
-      range = document.createRange();
+      var range = document.createRange();
       range.selectNodeContents($(activeElement)[0]);
-      selection = window.getSelection();
-      selection.removeAllRanges();
-      selection.addRange(range);
+      restoreSelection(range);
     }
     
     function bindEvents(el) {
@@ -464,6 +462,11 @@
           e.stopPropagation();
           e.preventDefault();
           return;
+        }
+        if (e.keyCode === 8 &&
+            $(activeElement).text().trim() === '' &&
+            $(activeElement).find('p,ul').length === 1) {
+          e.preventDefault();
         }
         // By default, Firefox doesn't create paragraphs. Fix this.
         if ($.browser.mozilla) {
