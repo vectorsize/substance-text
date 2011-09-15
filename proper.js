@@ -326,33 +326,90 @@
     // presentational elements (e.g. `<b>`) with their semantic counterparts
     // (e.g. `<strong>`).
     function semantifyContents(node) {
-      function getCorrectTagName(node) {
-        var tagName = node.nodeName.toLowerCase();
-        
-        if (tagName === 'i') return 'em';
-        if (tagName === 'b') return 'strong';
-        if (tagName === 'font') return 'code';
-        return tagName;
-      }
+      var clone = $(node).clone();
       
-      if (node.nodeType === Node.TEXT_NODE) {
-        return escape(node.data);
-      } else if (node.nodeType === Node.ELEMENT_NODE) {
-        var tagName = getCorrectTagName(node);
-        
-        if (tagName === 'br') return '<br />';
-        
-        var result = tagName === 'a' ? '<a href="'+escape(node.href)+'">'
-                                     : '<'+tagName+'>';
-        var children = node.childNodes;
-        for (var i = 0, l = children.length; i < l; i++) {
-          result += semantifyContents(children[i]);
-        }
-        result += '</'+tagName+'>';
-        return result;
-      } else {
-        return '';
+      function replace(presentational, semantic) {
+        clone.find(presentational).each(function () {
+          $(this).replaceWith($(document.createElement(semantic)).html($(this).html()));
+        });
       }
+      replace('i', 'em');
+      replace('b', 'strong');
+      replace('.proper-code', 'code');
+      replace('div', 'p');
+      //replace('span', 'span');
+      
+      clone.find('span').each(function () {
+        /*var child;
+        while (child = this.firstChild) {
+          $(child).remove().insertBefore(this);
+        }
+        $(this).remove();*/
+        if (this.firstChild) {
+          $(this.firstChild).unwrap();
+        }
+      });
+      
+      clone.find('p, ul, ol').each(function () {
+        while ($(this).parent().is('p')) {
+          $(this).unwrap();
+        }
+      });
+      
+      // Fix nested lists
+      clone.find('ul > ul, ul > ol, ol > ul, ol > ol').each(function () {
+        if ($(this).prev()) {
+          $(this).prev().append(this);
+        } else {
+          $(this).wrap($('<li />'));
+        }
+      });
+      
+      (function () {
+        var currentP = [];
+        function wrapInP() {
+          if (currentP.length) {
+            var p = $('<p />').insertBefore(currentP[0]);
+            for (var i = 0, l = currentP.length; i < l; i++) {
+              $(currentP[i]).remove().appendTo(p);
+            }
+            currentP = [];
+          }
+        }
+        // _.clone is necessary because it turns the `childNodes` live
+        // dom collection into a static array.
+        var children = _.clone(clone.get(0).childNodes);
+        for (var i = 0, l = children.length; i < l; i++) {
+          var child = children[i];
+          if (!$(child).is('p, ul, ol') &&
+              !(child.nodeType === Node.TEXT_NODE && (/^\s*$/).exec(child.data))) {
+            currentP.push(child);
+          } else {
+            wrapInP();
+          }
+        }
+        wrapInP();
+      })();
+      
+      // Remove unnecessary br's
+      clone.find('br').each(function () {
+        if (this.parentNode.lastChild === this) {
+          $(this).remove();
+        }
+      });
+      
+      // Remove all spans
+      clone.find('span').each(function () {
+        $(this).children().first().unwrap();
+      });
+      
+      clone.children().each(function () {
+        if (!$(this).is('p,ul,ol')) {
+          $(this).wrap($('<p />'));
+        }
+      });
+      
+      return clone.html();
     }
     
     // Update the control buttons' state.
@@ -580,12 +637,7 @@
       
       if (options.markup) {
         if (!activeElement) return '';
-        
-        var result = '';
-        _.each($(activeElement).get(0).childNodes, function (child) {
-          result += semantifyContents(child);
-        })
-        return result;
+        return semantifyContents($(activeElement));
       } else {
         if (options.multiline) {
           return _.stripTags($(activeElement).html().replace(/<div>/g, '\n')

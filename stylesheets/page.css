@@ -94,3 +94,8 @@ code, .proper-code {
 }
 .content[contenteditable=true] { border-color: #aaa; }
 .no-markup[contenteditable=true] { border-color: #aaa; }
+
+.content p, .content div, .content ul, .content ol { margin: 1em 0; }
+.content ul ul, .content ul ol, .content ol ul, .content ol ol { margin: 0; }
+/*.content p:first-child, .content div:first-child { margin-top: 0; }
+.content p:last-child, .content div:last-child { margin-bottom: 0; }*/
