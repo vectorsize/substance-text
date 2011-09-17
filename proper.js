@@ -326,10 +326,8 @@
     // presentational elements (e.g. `<b>`) with their semantic counterparts
     // (e.g. `<strong>`).
     function semantifyContents(node) {
-      var clone = $(node).clone();
-      
       function replace(presentational, semantic) {
-        clone.find(presentational).each(function () {
+        node.find(presentational).each(function () {
           $(this).replaceWith($(document.createElement(semantic)).html($(this).html()));
         });
       }
@@ -339,25 +337,20 @@
       replace('div', 'p');
       //replace('span', 'span');
       
-      clone.find('span').each(function () {
-        /*var child;
-        while (child = this.firstChild) {
-          $(child).remove().insertBefore(this);
-        }
-        $(this).remove();*/
+      node.find('span').each(function () {
         if (this.firstChild) {
           $(this.firstChild).unwrap();
         }
       });
       
-      clone.find('p, ul, ol').each(function () {
+      node.find('p, ul, ol').each(function () {
         while ($(this).parent().is('p')) {
           $(this).unwrap();
         }
       });
       
       // Fix nested lists
-      clone.find('ul > ul, ul > ol, ol > ul, ol > ol').each(function () {
+      node.find('ul > ul, ul > ol, ol > ul, ol > ol').each(function () {
         if ($(this).prev()) {
           $(this).prev().append(this);
         } else {
@@ -378,7 +371,7 @@
         }
         // _.clone is necessary because it turns the `childNodes` live
         // dom collection into a static array.
-        var children = _.clone(clone.get(0).childNodes);
+        var children = _.clone(node.get(0).childNodes);
         for (var i = 0, l = children.length; i < l; i++) {
           var child = children[i];
           if (!$(child).is('p, ul, ol') &&
@@ -392,24 +385,64 @@
       })();
       
       // Remove unnecessary br's
-      clone.find('br').each(function () {
+      node.find('br').each(function () {
         if (this.parentNode.lastChild === this) {
           $(this).remove();
         }
       });
       
       // Remove all spans
-      clone.find('span').each(function () {
+      node.find('span').each(function () {
         $(this).children().first().unwrap();
       });
       
-      clone.children().each(function () {
+      node.children().each(function () {
         if (!$(this).is('p,ul,ol')) {
           $(this).wrap($('<p />'));
         }
       });
+    }
+    
+    // Replaces semantic elements with their presentational counterparts
+    // (e.g. <em> with <i>). Tries to preserve the user's selection and cursor
+    // position.
+    function desemantifyContents(node) {
+      var sel = saveSelection()
+      ,   startContainer = sel.startContainer
+      ,   startOffset    = sel.startOffset
+      ,   endContainer   = sel.endContainer
+      ,   endOffset      = sel.endOffset;
       
-      return clone.html();
+      function replace(semantic, presentational) {
+        node.find(semantic).each(function () {
+          var presentationalEl = $(presentational).get(0);
+          
+          var child;
+          while (child = this.firstChild) {
+            presentationalEl.appendChild(child);
+          }
+          
+          $(this).replaceWith(presentationalEl);
+        });
+      }
+      replace('em', '<i />');
+      replace('strong', '<b />');
+      replace('code', '<font class="proper-code" face="'+escape(options.codeFontFamily)+'" />');
+      
+      function isInDom(node) {
+        if (node === document.body) return true;
+        if (node.parentNode) return isInDom(node.parentNode);
+        return false;
+      }
+      
+      if (isInDom(startContainer)) {
+        sel.setStart(startContainer, startOffset);
+      }
+      if (isInDom(endContainer)) {
+        sel.setEnd(endContainer, endOffset);
+      }
+      
+      restoreSelection(sel);
     }
     
     // Update the control buttons' state.
@@ -520,11 +553,11 @@
           e.preventDefault();
           return;
         }
-        if (e.keyCode === 8 &&
-            $(activeElement).text().trim() === '' &&
-            $(activeElement).find('p,ul').length === 1) {
-          e.preventDefault();
-        }
+        setTimeout(function () {
+          if ($(activeElement).html().trim() === '') {
+            document.execCommand('insertParagraph', false, true);
+          }
+        }, 10);
         // By default, Firefox doesn't create paragraphs. Fix this.
         if ($.browser.mozilla) {
           var selectionStart = saveSelection().startContainer;
@@ -616,6 +649,7 @@
       
       $(activeElement).focus();
       updateCommandState();
+      desemantifyContents($(activeElement));
       
       // Use <b>, <i> and <font face="monospace"> instead of style attributes.
       // This is convenient because these inline element can easily be replaced
@@ -637,7 +671,9 @@
       
       if (options.markup) {
         if (!activeElement) return '';
-        return semantifyContents($(activeElement));
+        var clone = $(activeElement).clone();
+        semantifyContents(clone);
+        return clone.html();
       } else {
         if (options.multiline) {
           return _.stripTags($(activeElement).html().replace(/<div>/g, '\n')
