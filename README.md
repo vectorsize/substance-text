@@ -9,6 +9,10 @@ The goal is to output proper semantic HTML by restricting the set of possible ta
 Changelog
 -------------------
 
+**0.3.1**
+
+Solves various issues and produces cleaner and more semantically correct html.
+
 **0.3.0**
 
 Solves a number of Firefox related issues and adds native support for `code` annotations.
