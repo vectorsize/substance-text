@@ -135,20 +135,6 @@
           codeFontFamily: 'Monaco, Consolas, "Lucida Console", monospace'
         };
     
-    // Setup temporary hidden DOM Node, for sanitization
-    var properContent = $('<div id="proper_content"></div>')
-      .hide()
-      .appendTo(document.body);
-    // TODO: michael, explain why these css properties are needed -- timjb
-    var rawContent = $('<div id="proper_raw_content" contenteditable="true"></div>')
-      .css({
-        position: 'fixed',
-        top: '20px',
-        left: '20px',
-        opacity: '0'
-      })
-      .appendTo(document.body);
-    
     
     // Commands
     // --------
@@ -283,11 +269,6 @@
         }
       }
     };
-    
-    // TODO: enable proper sanitizing that allows markup to be pasted too
-    function sanitize() {      
-      properContent.html(rawContent.text());
-    }
     
     // Returns true if a and b is the same font family. This is used to check
     // if the current font family (`document.queryCommandValue('fontName')`)
@@ -530,6 +511,62 @@
     // Handle events
     // -------------
     
+    // Should be called during a paste event. Removes the focus from the
+    // currently focused element. Expects a callback function that will be
+    // called with a node containing the pasted content.
+    function getPastedContent (callback) {
+      // TODO: michael, explain why these css properties are needed -- timjb
+      var tmpEl = $('<div id="proper_tmp_el" contenteditable="true" />')
+        .css({ position: 'fixed', top: '20px', left: '20px', opacity: '0' })
+        .appendTo(document.body)
+        .focus();
+      setTimeout(function () {
+        tmpEl.remove();
+        callback(tmpEl);
+      }, 10);
+    }
+    
+    function cleanPastedContent (node) {
+      var allowedTags = {
+        p: [], ul: [], ol: [], li: [],
+        strong: [], em: [], b: [], i: [], a: ['href']
+      };
+      
+      function traverse (node) {
+        // Remove comments
+        $(node).contents().filter(function () {
+          return this.nodeType === Node.COMMENT_NODE
+        }).remove();
+        
+        $(node).children().each(function () {
+          var tag = this.tagName.toLowerCase();
+          console.log(tag);
+          traverse(this);
+          if (allowedTags[tag]) {
+            var old  = $(this)
+            ,   neww = $(document.createElement(tag));
+            neww.html(old.html());
+            _.each(allowedTags[tag], function (name) {
+              neww.attr(name, old.attr(name));
+            });
+            old.replaceWith(neww);
+          } else {
+            $(this).contents().first().unwrap();
+          }
+        });
+      }
+      
+      $(node).find('script, style').remove();
+      // Remove double annotations
+      var annotations = 'strong, em, b, i, code, a';
+      $(node).find(annotations).each(function () {
+        $(this).find(annotations).each(function () {
+          $(this).contents().first().unwrap();
+        });
+      });
+      traverse(node);
+    }
+    
     function bindEvents(el) {
       $(el)
         .unbind('paste')
@@ -538,23 +575,17 @@
         .unbind('focus')
         .unbind('blur');
       
-      $(el).bind('paste', function() {
+      $(el).bind('paste', function () {
         var selection = saveSelection();
-        rawContent.focus();
-        
-        // Immediately sanitize pasted content
-        setTimeout(function() {
-          sanitize();
+        getPastedContent(function (node) {
           restoreSelection(selection);
           $(el).focus();
-          
-          // Avoid nested paragraph correction resulting from paste
-          var content = properContent.html().trim();
-
+          cleanPastedContent($(node));
+          //semantifyContents($(node));
+          desemantifyContents($(node));
           // For some reason last </p> gets injected anyway
-          document.execCommand('insertHTML', false, content);
-          rawContent.html('');
-        }, 1);
+          document.execCommand('insertHTML', false, $(node).html());
+        });
       });
       
       function isTag(node, tag) {
@@ -672,7 +703,7 @@
       
       // Use <b>, <i> and <font face="monospace"> instead of style attributes.
       // This is convenient because these inline element can easily be replaced
-      // by their more semantic counterparts (<strong>, <em> and <code>);
+      // by their more semantic counterparts (<strong>, <em> and <code>).
       document.execCommand('styleWithCSS', false, false);
       
       $('.proper-commands a.command').click(function(e) {
