@@ -149,6 +149,7 @@
       })
       .appendTo(document.body);
     
+    
     // Commands
     // --------
     
@@ -315,6 +316,9 @@
     }
     
     
+    // Semantify/desemantify content
+    // -----------------------------
+    
     function escape(text) {
       return text.replace(/&/g, '&amp;')
                  .replace(/</g, '&lt;')
@@ -395,54 +399,28 @@
       node.find('span').each(function () {
         $(this).children().first().unwrap();
       });
-      
-      node.children().each(function () {
-        if (!$(this).is('p,ul,ol')) {
-          $(this).wrap($('<p />'));
-        }
-      });
     }
     
     // Replaces semantic elements with their presentational counterparts
-    // (e.g. <em> with <i>). Tries to preserve the user's selection and cursor
-    // position.
+    // (e.g. <em> with <i>).
     function desemantifyContents(node) {
-      var sel = saveSelection()
-      ,   startContainer = sel.startContainer
-      ,   startOffset    = sel.startOffset
-      ,   endContainer   = sel.endContainer
-      ,   endOffset      = sel.endOffset;
-      
-      function replace(semantic, presentational) {
-        node.find(semantic).each(function () {
-          var presentationalEl = $(presentational).get(0);
-          
-          var child;
-          while (child = this.firstChild) {
-            presentationalEl.appendChild(child);
-          }
-          
-          $(this).replaceWith(presentationalEl);
-        });
-      }
-      replace('em', '<i />');
-      replace('strong', '<b />');
-      replace('code', '<font class="proper-code" face="'+escape(options.codeFontFamily)+'" />');
-      
-      function isInDom(node) {
-        if (node === document.body) return true;
-        if (node.parentNode) return isInDom(node.parentNode);
-        return false;
-      }
-      
-      if (isInDom(startContainer)) {
-        sel.setStart(startContainer, startOffset);
-      }
-      if (isInDom(endContainer)) {
-        sel.setEnd(endContainer, endOffset);
-      }
-      
-      restoreSelection(sel);
+      doWithSelection(function () {
+        function replace(semantic, presentational) {
+          node.find(semantic).each(function () {
+            var presentationalEl = $(presentational).get(0);
+            
+            var child;
+            while (child = this.firstChild) {
+              presentationalEl.appendChild(child);
+            }
+            
+            $(this).replaceWith(presentationalEl);
+          });
+        }
+        replace('em', '<i />');
+        replace('strong', '<b />');
+        replace('code', '<font class="proper-code" face="'+escape(options.codeFontFamily)+'" />');
+      });
     }
     
     // Update the control buttons' state.
@@ -456,6 +434,10 @@
         }
       });
     }
+    
+    
+    // Placeholder
+    // -----------
     
     // If the activeElement has no content, display the placeholder and give
     // the element the class `empty`.
@@ -480,6 +462,10 @@
       }
     }
     
+    
+    // DOM Selection
+    // -------------
+    
     // Returns the current selection as a dom range.
     function saveSelection() {
       if (window.getSelection) {
@@ -492,7 +478,7 @@
       }
       return null;
     }
-
+    
     // Selects the given dom range.
     function restoreSelection(range) {
       if (range) {
@@ -512,6 +498,37 @@
       range.selectNodeContents($(activeElement)[0]);
       restoreSelection(range);
     }
+    
+    // Applies fn and tries to preserve the user's selection and cursor
+    // position.
+    function doWithSelection (fn) {
+      // Before
+      var sel = saveSelection()
+      ,   startContainer = sel.startContainer
+      ,   startOffset    = sel.startOffset
+      ,   endContainer   = sel.endContainer
+      ,   endOffset      = sel.endOffset;
+      
+      fn();
+      
+      // After
+      function isInDom(node) {
+        if (node === document.body) return true;
+        if (node.parentNode) return isInDom(node.parentNode);
+        return false;
+      }
+      if (isInDom(startContainer)) {
+        sel.setStart(startContainer, startOffset);
+      }
+      if (isInDom(endContainer)) {
+        sel.setEnd(endContainer, endOffset);
+      }
+      restoreSelection(sel);
+    }
+    
+    
+    // Handle events
+    // -------------
     
     function bindEvents(el) {
       $(el)
