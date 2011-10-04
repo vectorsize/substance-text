@@ -539,7 +539,6 @@
         
         $(node).children().each(function () {
           var tag = this.tagName.toLowerCase();
-          console.log(tag);
           traverse(this);
           if (allowedTags[tag]) {
             var old  = $(this)
@@ -566,6 +565,13 @@
       traverse(node);
     }
     
+    // Removes <b>, <i> and <font> tags
+    function removeAnnotations (node) {
+      $(node).find('b, i, font').each(function () {
+        $(this).contents().first().unwrap();
+      });
+    }
+    
     function bindEvents(el) {
       $(el)
         .unbind('paste')
@@ -575,6 +581,9 @@
         .unbind('blur');
       
       $(el).bind('paste', function () {
+        var isAnnotationActive = commands.strong.isActive()
+                              || commands.em.isActive()
+                              || commands.code.isActive();
         var selection = saveSelection();
         getPastedContent(function (node) {
           restoreSelection(selection);
@@ -582,6 +591,7 @@
           cleanPastedContent($(node));
           //semantifyContents($(node));
           desemantifyContents($(node));
+          if (isAnnotationActive) removeAnnotations($(node));
           // For some reason last </p> gets injected anyway
           document.execCommand('insertHTML', false, $(node).html());
         });
