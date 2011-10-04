@@ -528,7 +528,7 @@
     function cleanPastedContent (node) {
       var allowedTags = {
         p: [], ul: [], ol: [], li: [],
-        strong: [], em: [], b: [], i: [], a: ['href']
+        strong: [], code: [], em: [], b: [], i: [], a: ['href']
       };
       
       function traverse (node) {
@@ -548,6 +548,8 @@
               neww.attr(name, old.attr(name));
             });
             old.replaceWith(neww);
+          } else if (tag === 'font' && $(this).hasClass('proper-code')) {
+            // do nothing
           } else {
             $(this).contents().first().unwrap();
           }
