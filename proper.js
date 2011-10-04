@@ -124,8 +124,7 @@
   this.Proper = function(options) {
     var activeElement = null, // element that's being edited
         $controls,
-        self = {},
-        that = this,
+        events = _.extend({}, _.Events),
         pendingChange = false,
         options = {},
         defaultOptions = { // default options
@@ -169,7 +168,7 @@
 
     var nbsp = $('<span>&nbsp;</span>').text();
 
-    var commands = self.commands = {
+    var commands = {
       em: {
         isActive: function() {
           return document.queryCommandState('italic', false, true);
@@ -639,7 +638,7 @@
             pendingChange = true;
             setTimeout(function() {
               pendingChange = false;
-              self.trigger('changed');
+              events.trigger('changed');
             }, 200);
           }
         }, 10);
@@ -650,22 +649,22 @@
     // Instance methods
     // -----------
 
-    self.deactivate = function() {
+    function deactivate () {
       $(activeElement)
         .attr('contenteditable', 'false')
         .unbind('paste')
         .unbind('keydown');
       $('.proper-commands').remove();
-      self.unbind('changed');
+      events.unbind('changed');
     };
     
     // Activate editor for a given element
-    self.activate = function(el, opts) {
+    function activate (el, opts) {
       options = {};
       _.extend(options, defaultOptions, opts);
       
       // Deactivate previously active element
-      self.deactivate();
+      deactivate();
       
       // Make editable
       $(el).attr('contenteditable', true);
@@ -711,12 +710,12 @@
         $(activeElement).focus();
         exec($(e.currentTarget).attr('command'));
         updateCommandState();
-        setTimeout(function() { self.trigger('changed'); }, 10);
+        setTimeout(function() { events.trigger('changed'); }, 10);
       });
     };
     
     // Get current content
-    self.content = function() {
+    function content () {
       if ($(activeElement).hasClass('empty')) return '';
       
       if (options.markup) {
@@ -737,7 +736,16 @@
     // Expose public API
     // -----------------
     
-    _.extend(self, _.Events);
-    return self;
+    return {
+      bind:    function () { events.bind.apply(events, arguments); },
+      unbind:  function () { events.unbind.apply(events, arguments); },
+      trigger: function () { events.trigger.apply(events, arguments); },
+      
+      activate: activate,
+      deactivate: deactivate,
+      content: content,
+      exec: exec,
+      commands: commands
+    };
   };
 })();
