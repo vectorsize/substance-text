@@ -305,6 +305,12 @@
                  .replace(/>/g, '&gt;')
                  .replace(/"/g, '&quot;');
     }
+
+    function bidi_process(element) {
+        if(typeof bidiweb !== "undefined") {
+            bidiweb.process(element)
+        }
+    }
     
     // Recursively walks the dom and returns the semantified contents. Replaces
     // presentational elements (e.g. `<b>`) with their semantic counterparts
@@ -647,6 +653,7 @@
       $(el).bind('keyup', function(e) {        
         updateCommandState();
         addCodeClasses();
+        bidi_process(activeElement);
         // Trigger change events, but consolidate them to 200ms time slices
         setTimeout(function() {
           // Skip if there's already a change pending
@@ -724,6 +731,8 @@
       } catch (exc) {
         // This fails in Firefox.
       }
+
+      bidi_process(el);
       
       $('.proper-commands a.command').click(function(e) {
         e.preventDefault();
