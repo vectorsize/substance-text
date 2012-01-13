@@ -284,9 +284,9 @@
       // stack (e.g. `Monaco, Consolas, "Lucida Console", monospace`).
       if ($.browser.msie) {
         if (a.split(',').length === 1) {
-          return b.split(',').indexOf(a) > -1;
+          return _.indexOf(b.split(','), a) > -1;
         } else if (b.split(',').length === 1) {
-          return a.split(',').indexOf(b) > -1;
+          return _.indexOf(a.split(','), b) > -1;
         } else {
           return a === b;
         }
