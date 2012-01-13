@@ -132,6 +132,10 @@
           markup: true,
           placeholder: 'Enter Text',
           codeFontFamily: 'Monaco, Consolas, "Lucida Console", monospace'
+        },
+        Node = window.Node || { // not available in IE
+          TEXT_NODE: 3,
+          COMMENT_NODE: 8
         };
     
     
