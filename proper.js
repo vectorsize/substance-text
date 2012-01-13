@@ -422,7 +422,7 @@
     // If the activeElement has no content, display the placeholder and give
     // the element the class `empty`.
     function maybeInsertPlaceholder() {
-      if ($(activeElement).text().trim().length === 0) {
+      if ($.trim($(activeElement).text()).length === 0) {
         $(activeElement).addClass('empty');
         if (options.markup) {
           $(activeElement).html('<p>&laquo; '+options.placeholder+' &raquo;</p>');
@@ -474,8 +474,18 @@
     
     // Selects the whole editing area.
     function selectAll() {
-      var range = document.createRange();
-      range.selectNodeContents($(activeElement)[0]);
+      var el = $(activeElement)[0],
+        range;
+      
+      if (document.body.createTextRange) { // IE < 9
+        range = document.body.createTextRange();
+        range.moveToElementText(el);
+        range.select();
+      } else {
+        range = document.createRange();
+        range.selectNodeContents(el);
+      }
+
       restoreSelection(range);
     }
     
@@ -496,8 +506,10 @@
       if (sel) {
         // After
         function isInDom(node) {
-          if (node === document.body) return true;
-          if (node.parentNode) return isInDom(node.parentNode);
+          if (node) {
+            if (node === document.body) return true;
+            if (node.parentNode) return isInDom(node.parentNode);
+          }
           return false;
         }
         if (isInDom(startContainer)) {
@@ -617,7 +629,7 @@
           return;
         }
         if (e.keyCode === 8 &&
-            $(activeElement).text().trim() === '' &&
+            $.trim($(activeElement).text()) === '' &&
             $(activeElement).find('p, li').length === 1) {
           // backspace is pressed and the editor is empty
           // prevent the removal of the last paragraph
@@ -745,10 +757,10 @@
         return clone.html();
       } else {
         if (options.multiline) {
-          return _.stripTags($(activeElement).html().replace(/<div>/g, '\n')
-                                             .replace(/<\/div>/g, '')).trim();
+          return $.trim(_.stripTags($(activeElement).html().replace(/<div>/g, '\n')
+                                             .replace(/<\/div>/g, '')));
         } else {
-          return _.stripTags($(activeElement).html()).trim();
+          return $.trim(_.stripTags($(activeElement).html()));
         }
       }
     };
