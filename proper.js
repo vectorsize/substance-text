@@ -536,7 +536,11 @@
     function getPastedContent (callback) {
       // TODO: michael, explain why these css properties are needed -- timjb
       var tmpEl = $('<div id="proper_tmp_el" contenteditable="true" />')
-        .css({ position: 'fixed', top: '20px', left: '20px', opacity: '0' })
+        .css({
+          position: 'fixed', top: '20px', left: '20px',
+          opacity: '0', 'z-index': '10000',
+          width: '1px', height: '1px'
+        })
         .appendTo(document.body)
         .focus();
       setTimeout(function () {
