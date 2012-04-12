@@ -47,9 +47,9 @@
         return word.length > 0; // && word.match(/\w+/) 
         // wops! \w only matches ascii characters :(
     }
-    var words = text.split(' ').filter(is_word);
+    var words = _.filter(text.split(' '), is_word);
 
-    var dirs = words.map(getWordDir);
+    var dirs = _.map(words,getWordDir);
 
     var func_same_direction = function(dir) { 
         return function(d) { return d == dir; }; 
@@ -60,7 +60,7 @@
     // should be really the same as dirs because we already filtered out
     // things that are not words!
     var X = 100;
-    var hard_dirs = dirs.filter(is_non_neutral_dir).slice(0, X);
+    var hard_dirs = _.filter(dirs, is_non_neutral_dir).slice(0, X);
 
     if (hard_dirs.length == 0) { return 'N'; }
     var candidate = hard_dirs[0];
@@ -202,6 +202,7 @@
           multiline: true,
           markup: true,
           placeholder: 'Enter Text',
+          startEmpty: false,
           codeFontFamily: 'Monaco, Consolas, "Lucida Console", monospace'
         },
         Node = window.Node || { // not available in IE
@@ -506,9 +507,9 @@
       if ($.trim($(activeElement).text()).length === 0) {
         $(activeElement).addClass('empty');
         if (options.markup) {
-          $(activeElement).html('<p>&laquo; '+options.placeholder+' &raquo;</p>');
+          $(activeElement).html('<p>'+options.placeholder+'</p>');
         } else {
-          $(activeElement).html('&laquo; '+options.placeholder+' &raquo;');
+          $(activeElement).html(options.placeholder);
         }
       }
     }
@@ -812,7 +813,11 @@
           .keydown('shift+tab',    execLater('outdent'));
       }
       
-      $(activeElement).focus();
+      if (!options.startEmpty) 
+        $(activeElement).focus();
+      else
+        maybeInsertPlaceholder();
+      
       updateCommandState();
       desemantifyContents($(activeElement));
       
@@ -831,7 +836,7 @@
         exec($(e.currentTarget).attr('command'));
         updateCommandState();
         setTimeout(function() { events.trigger('changed'); }, 10);
-      });
+      });      
     };
     
     // Get current content
@@ -853,6 +858,11 @@
       }
     };
     
+    // Get current content but stripped
+    function contentStripped () {
+      return _.stripTags(this.content());
+    };
+    
     // Expose public API
     // -----------------
     
@@ -864,6 +874,7 @@
       activate: activate,
       deactivate: deactivate,
       content: content,
+      contentStripped: contentStripped,
       exec: exec,
       commands: commands,
       direction: function() { return direction; }
