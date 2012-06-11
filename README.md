@@ -1,13 +1,17 @@
-PROPER™ — Semantic Rich Text Editor
+Proper — Semantic Rich Text Editor
 ==================
 
-PROPER is a Semantic Texteditor based on HTML's `contenteditable` attribute. It's being developed in the context of [Substance](http://github.com/michael/substance), a data driven document authoring engine.
+Proper 0.5.0 will be a complete rewrite, using CodeMirror instead of `contenteditable`. 
 
-The goal is to output proper semantic HTML by restricting the set of possible tags. When pasting content, the markup is stripped.
+Thank you Victor Saiz (vectorsize) for working on this!
 
 
 Changelog
 -------------------
+
+**0.5.0**
+
+In progress. Rewrite using CodeMirror.
 
 **0.3.1**
 

@@ -18,35 +18,14 @@
   <script>
     // Proper Init
     $(function() {
-      window.editor = new Proper();
-      
-      $('.content').click(function() {
-        editor.activate($(this), {
-          placeholder: 'Enter Text',
-          controlsTarget: $('#tools'),
-          codeFontFamily: 'Monaco, Consolas, "Lucida Console", monospace'
-        });
-        
-        // Update node when editor commands are applied
-        editor.bind('changed', function() {
-          $('#source').text(editor.content());
-        });
-      });
-      
-      $('h2.no-markup').click(function() {
-        editor.activate($(this), { markup: false, multiline: false });
-        
-        // Update node when editor commands are applied
-        editor.bind('changed', function() {
-          $('#source').text(editor.content());
-        });
-      });
+
+      // TODO: initialize new Proper
     });
   </script>
   
 </head>
 <body>
-  <h1>PROPER&trade; - Semantic Rich Text Editor (Version 0.3.1)</h1>
+  <h1>PROPER&trade; - Semantic Rich Text Editor (Version 0.5.0-work-in-progress)</h1>
   
   <div id="main">
     <div id="tools"></div>
