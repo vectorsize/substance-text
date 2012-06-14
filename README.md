@@ -12,6 +12,7 @@ Changelog
 **0.5.0**
 
 In progress. Rewrite using CodeMirror.
+Ranges management and basic functionality implemented.
 
 **0.3.1**
 
