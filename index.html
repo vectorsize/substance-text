@@ -4,51 +4,43 @@
   <title>PROPER&trade; - Semantic Rich Text Editor</title>  
   
   <!-- Styles -->
+  <link href="stylesheets/codemirror.css" media="screen" rel="stylesheet" type="text/css" />
   <link href="stylesheets/page.css" media="screen" rel="stylesheet" type="text/css" />
   <link href="stylesheets/proper.css" media="screen" rel="stylesheet" type="text/css" />
-  
+
+  <style type="text/css">
+    .strong {font-weight: bold;}
+    .em {font-style:italic;}
+    .underline {text-decoration:underline}
+  </style>
   <!-- Libraries -->
+  <script src="lib/underscore.js"></script>
+  <script src="lib/backbone-min.js"></script>
   <script src="lib/jquery-min.js"></script>
   <script src="lib/jquery.hotkeys.js"></script>
-  <script src="lib/underscore.js"></script>
-    
+  <script src="lib/codemirror.js"></script>
+
   <!-- Source -->
   <script src="proper.js"></script>
 
   <script>
     // Proper Init
     $(function() {
-
       // TODO: initialize new Proper
+      window.editor = new Proper();
     });
   </script>
-  
 </head>
 <body>
   <h1>PROPER&trade; - Semantic Rich Text Editor (Version 0.5.0-work-in-progress)</h1>
   
   <div id="main">
-    <div id="tools"></div>
-    <div class="content">
-      <p>Text wants to be <strong>editable</strong>.<br/>But text also wants to be <strong>meaningful</strong>.
-      </p>
-    </div>
-  
-    <div class="content">
-      <p>
-        On the right, you see the <em>sanitized</em> (and hopefully correct) HTML output.
-      </p>
-      <p>
-        Known issues:
-        <ul>
-          <li>Does not yet consider <code>markup</code> for pasted content</li>
-        </ul>
-      </p>
-    </div>
-    
-    <h2 class="no-markup">
-      Here we prevent from using markup and newlines
-    </h2>
+    <ul id="tools" class="proper-commands"> 
+    </ul>
+    <form><textarea class="editable" name="code">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+
+Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</textarea></form>
   </div>
   
   <div id="source">
@@ -60,6 +52,6 @@
     and <a href="http://froodee.at/">froodee</a>. 
   </div>
   
-  <a href="http://github.com/michael/proper"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://assets2.github.com/img/71eeaab9d563c2b3c590319b398dd35683265e85?repo=&url=http%3A%2F%2Fs3.amazonaws.com%2Fgithub%2Fribbons%2Fforkme_right_gray_6d6d6d.png&path=" alt="Fork me on GitHub"></a>
+  <a href="http://github.com/michael/proper"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
 </body> 
 </html>
