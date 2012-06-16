@@ -12,7 +12,7 @@ Proper is intended to be an extensible low-level interface for rich text editing
 
 ```js
 var proper = new Proper({
-  '#content'
+  el: '#content'
 });
 ```
 
