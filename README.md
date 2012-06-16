@@ -70,7 +70,7 @@ proper.on('selection', function(selection, el) {
 ```js
 // Your very own event handler triggering the addition of a new em annotation
 // which immediately gets visible in the rendered version
-$('a.em').click(function() {
+proper.$('a.em').click(function() {
   proper.annotate({
     type: "em" // you can style it using the .annotation.em class selector
   });
