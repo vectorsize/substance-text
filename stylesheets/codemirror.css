@@ -1,6 +1,7 @@
 .CodeMirror {
   line-height: 1em;
-  font-family: monospace;
+  font-family: georgia;//monospace;
+  font-size: 18px;
 
   /* Necessary so the scrollbar can be absolutely positioned within the wrapper on Lion. */
   position: relative;

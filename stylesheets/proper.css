@@ -74,3 +74,8 @@
   -moz-box-shadow:    1px 0px 0px rgba(255,255,255,0.5);
   box-shadow:         1px 0px 0px rgba(255,255,255,0.5);
 }
+
+/*CodeMIrror implementation styles*/
+.strong {font-weight: bold;}
+.em {font-style:italic;}
+.underline {text-decoration:underline}

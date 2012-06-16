@@ -8,14 +8,8 @@
   <link href="stylesheets/page.css" media="screen" rel="stylesheet" type="text/css" />
   <link href="stylesheets/proper.css" media="screen" rel="stylesheet" type="text/css" />
 
-  <style type="text/css">
-    .strong {font-weight: bold;}
-    .em {font-style:italic;}
-    .underline {text-decoration:underline}
-  </style>
   <!-- Libraries -->
   <script src="lib/underscore.js"></script>
-  <script src="lib/backbone-min.js"></script>
   <script src="lib/jquery-min.js"></script>
   <script src="lib/jquery.hotkeys.js"></script>
   <script src="lib/codemirror.js"></script>
@@ -26,8 +20,43 @@
   <script>
     // Proper Init
     $(function() {
-      // TODO: initialize new Proper
-      window.editor = new Proper();
+
+        var proper = new Proper({
+          el: '#content'
+        });
+
+        // Gets proper.selection()
+        $('#selection').click(function(e){
+          e.preventDefault();
+          console.log('Selection:');
+          console.log(proper.selection());
+        });
+
+        // Annotates comment
+        $('#annotate').click(function(e){
+          e.preventDefault();
+          proper.annotate({
+            // id: "/comment/x", should this be set from inside proper instead?
+            type: "comment",
+            data: {
+              author: "John Doe",
+              content: "You might want to spell that right. Right? :)"
+            }
+          });
+          console.log('Annotations:');
+          console.log(proper.annotations());
+        });
+
+        // Annotates em
+        $('#em').click(function(e){
+          e.preventDefault();
+          proper.annotate({
+            type: "em"
+          });
+          console.log('Annotations:');
+          console.log(proper.annotations());
+        });
+
     });
   </script>
 </head>
@@ -35,9 +64,12 @@
   <h1>PROPER&trade; - Semantic Rich Text Editor (Version 0.5.0-work-in-progress)</h1>
   
   <div id="main">
-    <ul id="tools" class="proper-commands"> 
+    <ul id="tools" class="proper-commands">
+      <li><a href="#selection" id="selection">selection()</a></li>
+      <li><a href="#annotate" id="annotate">Comment</a></li>
+      <li><a href="#em" id="em">Em</a></li>
     </ul>
-    <form><textarea class="editable" name="code">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+    <form><textarea id="content" class="editable" name="code">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
 Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
 
 Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</textarea></form>
