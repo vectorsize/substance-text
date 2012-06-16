@@ -53,7 +53,6 @@ h1 { margin-left: 10px; color:rgba(148,207,13,1); }
 #source {
   float: left;
   margin-left: 20px;
-  margin-top: 40px;
   width: 45%;
   height: 300px;
   padding: 5px;
@@ -64,6 +63,7 @@ h1 { margin-left: 10px; color:rgba(148,207,13,1); }
   -webkit-border-radius:5px;
   -moz-border-radius:   5px;
   border-radius:        5px;
+	margin-top: 37px;
 }
 
 
@@ -82,13 +82,19 @@ code, .proper-code {
 }
 
 div.CodeMirror.CodeMirror-wrap {
-  margin-top: 40px;
   padding: 10px;
   -webkit-border-radius:5px;
   -moz-border-radius:   5px;
   border-radius:        5px;
+  height: 300px;
+  border: 1px dashed transparent;
+	float: left;
+	margin-top: 5px;
+}
+
+
+div.CodeMirror.CodeMirror-wrap.active {
   border: 1px dashed #aaa;
-	height: 300px;
 }
 
 .no-markup:hover, .content:hover {

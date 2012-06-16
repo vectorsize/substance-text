@@ -48,10 +48,20 @@
         });
 
         // Annotates em
-        $('#em').click(function(e){
+        $('#em').bind('click', function(e){
           e.preventDefault();
           proper.annotate({
             type: "em"
+          });
+          console.log('Annotations:');
+          console.log(proper.annotations());
+        });
+
+        // Annotates strong
+        $('#strong').bind('click', function(e){
+          e.preventDefault();
+          proper.annotate({
+            type: "strong"
           });
           console.log('Annotations:');
           console.log(proper.annotations());
@@ -64,10 +74,10 @@
   <h1>PROPER&trade; - Semantic Rich Text Editor (Version 0.5.0-work-in-progress)</h1>
   
   <div id="main">
-    <ul id="tools" class="proper-commands">
-      <li><a href="#selection" id="selection">selection()</a></li>
-      <li><a href="#annotate" id="annotate">Comment</a></li>
-      <li><a href="#em" id="em">Em</a></li>
+    <ul class="proper-commands">
+      <li><a href="#annotate" title="Annotate" class="command annotate" id="annotate" command="annotate"><div>Comment</div></a>
+      <li><a href="#em" title="Emphasis (CTRL+SHIFT+E)" class="command em" id="em" command="em"><div>Emphasis</div></a></li>
+      <li><a href="#strong" title="Strong (CTRL+SHIFT+S)" class="command strong" id="strong" command="strong"><div>Strong</div></a></li>
     </ul>
     <form><textarea id="content" class="editable" name="code">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
 Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.

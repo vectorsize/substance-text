@@ -13,7 +13,7 @@
 //   all these platforms (if possible).
 
 (function(){
-  
+
   // Proper
   // ------
 
@@ -21,31 +21,58 @@
 
     var range
       , annotationList = []
-      , options = options || {};
-
-    var defaults = { 
-      lineWrapping: true,
-      lineNumbers: false
-    };
-
-    var overrides = {
-      lineWrapping: true,
-      onCursorActivity: function(cm){
-        // Set the selection range
-        var from = cm.getCursor(true);
-        var to = cm.getCursor(false);
-        var str = cm.getSelection();
-        range = {'from':from, 'to':to, 'str': str};
-        findMatching();
-      }
-    };
-
-    // Merge options
-    _.extend(defaults, options);
-    _.extend(options, overrides);
+      , events = _.extend({}, _.Events),
+      tools = 
+      '<div id="tooltip" class="proper-commands"> \
+        <a href="#em" title="Emphasis (CTRL+SHIFT+E)" class="command em" id="em" command="em"><div>Emphasis</div></a> \
+        <a href="#strong" title="Strong (CTRL+SHIFT+S)" class="command strong" id="strong" command="strong"><div>Strong</div></a>\
+      </div>';
 
     // Init codeMirror
     var cm = CodeMirror.fromTextArea($(options.el)[0], options);
+
+    // Override options
+    cm.setOption('lineWrapping', true);
+    
+    // CodeMirror events
+    cm.setOption('onCursorActivity', function(cm){
+      // Make sure we at least have 1 character selected
+      if(cm.getSelection().length !== 0){
+        // Set the selection range
+        var from = cm.getCursor(true)
+        ,   to = cm.getCursor(false)
+        , str = cm.getSelection();
+
+        range = {'from':from, 'to':to, 'str': str};
+
+        // When we have at least one character we show the tools
+        if(cm.getSelection().length < 2){
+          var node = $(tools)[0];
+          cm.addWidget(cm.getCursor(false), node, true);
+        }
+
+        findMatching();
+      }else{
+        // no chars selected we remove the tools
+        removeTools();
+      }
+    });
+
+    cm.setOption('onFocus', function(e){
+      $(cm.getWrapperElement()).addClass('active');
+    });
+    
+    cm.setOption('onBlur', function(e){
+      $(cm.getWrapperElement()).removeClass('active');
+      // removeTools();
+    });
+
+    function removeTools(){
+      // There's a strange bug where it won't be removed
+      // when no characters are selected
+      $('#tooltip').remove();
+      $('#tooltip').remove();
+    }
 
     // Resets the cursor selection to the actual range
     function restetCursor(range){
@@ -67,6 +94,7 @@
         sel.to.ch = sel.to.ch - 1;
       }
 
+      // Get selection string
       sel.str = cm.getRange(sel.from, sel.to);
       return sel;
     }
@@ -100,14 +128,8 @@
       annotationList.push(note);
     }
 
-    // Returns list of annotations
-    function annotations(){
-      return annotationList;
-    };
-
     // Finds matching annotations for the selected range
     function findMatching(){
-      // range = selection();
       var start = toOffset(trim(range).from);
       var end = toOffset(trim(range).to);
       var id = 'comment/' + start + '' + end;
@@ -118,11 +140,14 @@
       }
     }
 
-    //API
+    // Expose public API
+    // -----------------
+    
     return {
+      annotations: function(){ return annotationList;},
+
       selection: selection,
       annotate: annotate,
-      annotations: annotations
     };
   };
 })();
