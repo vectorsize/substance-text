@@ -24,8 +24,8 @@
       , events = _.extend({}, _.Events),
       tools = 
       '<div id="tooltip" class="proper-commands"> \
-        <a href="#em" title="Emphasis (CTRL+SHIFT+E)" class="command em" id="em" command="em"><div>Emphasis</div></a> \
-        <a href="#strong" title="Strong (CTRL+SHIFT+S)" class="command strong" id="strong" command="strong"><div>Strong</div></a>\
+        <a href="#em" title="Emphasis (CTRL+SHIFT+E)" class="command em" command="em"><div>Emphasis</div></a> \
+        <a href="#strong" title="Strong (CTRL+SHIFT+S)" class="command strong" command="strong"><div>Strong</div></a>\
       </div>';
 
     // Init codeMirror
