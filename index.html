@@ -33,7 +33,7 @@
         });
 
         // Annotates comment
-        $('#annotate').click(function(e){
+        $('#comment').click(function(e){
           e.preventDefault();
           proper.annotate({
             // id: "/comment/x", should this be set from inside proper instead?
@@ -67,6 +67,9 @@
           console.log(proper.annotations());
         });
 
+        $('.command').click(function(){
+          // console.log('ee');
+        });
     });
   </script>
 </head>
@@ -75,7 +78,7 @@
   
   <div id="main">
     <ul class="proper-commands">
-      <li><a href="#annotate" title="Annotate" class="command annotate ul" id="annotate" command="annotate"><div>Comment</div></a>
+      <li><a href="#comment" title="Annotate" class="command comment ul" id="comment" command="comment"><div>Comment</div></a>
       <li><a href="#em" title="Emphasis (CTRL+SHIFT+E)" class="command em" id="em" command="em"><div>Emphasis</div></a></li>
       <li><a href="#strong" title="Strong (CTRL+SHIFT+S)" class="command strong" id="strong" command="strong"><div>Strong</div></a></li>
     </ul>
