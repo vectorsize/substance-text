@@ -36,6 +36,7 @@
         var to = cm.getCursor(false);
         var str = cm.getSelection();
         range = {'from':from, 'to':to, 'str': str};
+        findMatching();
       }
     };
 
@@ -100,9 +101,22 @@
     }
 
     // Returns list of annotations
-    var annotations = function(){
+    function annotations(){
       return annotationList;
     };
+
+    // Finds matching annotations for the selected range
+    function findMatching(){
+      // range = selection();
+      var start = toOffset(trim(range).from);
+      var end = toOffset(trim(range).to);
+      var id = 'comment/' + start + '' + end;
+      var found = _.find(annotationList, function(ann){ return ann.id == id; });
+
+      if(typeof found !== 'undefined'){
+        console.log(found.type);
+      }
+    }
 
     //API
     return {
@@ -111,6 +125,4 @@
       annotations: annotations
     };
   };
-   
-
 })();
