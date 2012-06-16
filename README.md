@@ -2,62 +2,80 @@
 
 Proper 0.5.0 will be a complete rewrite, using CodeMirror instead of `contenteditable`. Thanks to Victor Saiz (vectorsize) for working on this!
 
-Proper is intended to be an extensible low-level interface for rich text editing. It doesn't introduce any UI components, but an API for managing arbitrary text annotations. However, there will be examples for basic semantic rich text editing and comments.
+Proper is intended to be an extensible low-level interface for rich text editing. It doesn't introduce any UI components, but an API for managing user-defined text annotations. However, there will be examples for basic semantic rich text editing featuring em, strong, link and comment annotations. You're encouraged to build your own variations based on the given integration examples.
+
 
 ## API (in-progress)
 
-### Initialization
+### Initialization (not sure on that)
 
-    var proper = new Proper();
-    
-    proper.activate('#content');
-    
+
+```js
+var proper = new Proper({
+  '#content'
+});
+```
+
 ### Annotations
 
-  // Add annotation
-	proper.annotate({
-      id: "/comment/x", // optional
-      type: "comment",
-      ranges: [[5,14]],
-      data: {
-      	author: "John Doe",
-        content: "You might want to spell that right. Right? :)"
-      }
-	});
-    
-    // Accesss annotations
-    proper.annotations(); 
-    // => {
-            "/comment/x": {...}
-            "/em/foo": {...}
-          }
-    // 
-    [{"from":{"line":0,"ch":176},"to":{"line":0,"ch":183},"type":"em","combined":"17601830"}]
+```js
+// Add annotation (uses the current selection)
+proper.annotate({
+  id: "/comment/x", // optional
+  type: "comment",
+  data: {
+    author: "John Doe",
+    content: "You might want to spell that right. Right? :)"
+  }
+});
+```
+
+```js
+// Accesss annotations
+proper.annotations(); 
+// => {
+  "/comment/x": {...},
+  "/em/foo": {...},
+  ...
+}
+```
 
 
 ### Selections
 
-Hooking into selection events is easy. `el` is a container html element sitting below the selection. You can populate it with some UI stuff.
 
 A selection object looks like so:
 
-    {
-      "start": 5,
-      "end": 10
-    }
+```js
+{
+  "start": 5,
+  "end": 10
+}
+```
 
 Get the current selection like so:
 
-	proper.selection();
+```js
+proper.selection();
+```
 
+Hooking into selection events is easy too. `el` is a container html element sitting below the selection. You can populate it with some contextual UI stuff.
+
+```js
 proper.on('selection', function(selection, el) {
   $(el).html('<a href="#" class="em">Emphasize</a>');
 });
+```
 
-// Your very own event handler triggering em annotations
+```js
+// Your very own event handler triggering the addition of a new em annotation
+// which immediately gets visible in the rendered version
 $('a.em').click(function() {
-  
+  proper.annotate({
+    type: "em" // you can style it using the .annotation.em class selector
+  });
 });
+```
 
 ## Changelog
 
