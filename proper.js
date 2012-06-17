@@ -153,10 +153,9 @@
     // -----------------
     
     return {
-      annotations: function(){ return annotationList;},
-
+      annotations: function(){ return annotationList; },
       selection: selection,
-      annotate: annotate,
+      annotate: annotate
     };
   };
 })();
