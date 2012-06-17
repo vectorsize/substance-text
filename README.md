@@ -1,4 +1,6 @@
-# Proper — Semantic Rich Text Editor
+# Substance Text
+
+A visual text editor built on Surface, providing support for text emphasis, and links.
 
 Proper 0.5.0 will be a complete rewrite, using CodeMirror instead of `contenteditable`. Thanks to Victor Saiz (vectorsize) for working on this!
 
