@@ -6,6 +6,6 @@ More description to come...
 
 ## Contributors
 
-- Victor Saiz ([vectorsize](http://github.com/vectorsize)) working on 0.5.0
-- Tim Baumann ([timjb](http://github.com/timjb)) implementation of 0.3.0
-- Michael Aufreiter ([michael](http://github.com/michael)) initial version
+- Victor Saiz ([vectorsize](http://github.com/vectorsize))
+- Tim Baumann ([timjb](http://github.com/timjb))
+- Michael Aufreiter ([michael](http://github.com/michael))
