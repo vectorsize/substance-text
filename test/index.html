@@ -1,0 +1,62 @@
+<!DOCTYPE html> 
+<html> 
+<head> 
+  <title>PROPER&trade; - Semantic Rich Text Editor</title>  
+  
+  <!-- Styles -->
+  <link href="../stylesheets/codemirror.css" media="screen" rel="stylesheet" type="text/css" />
+  <link href="../stylesheets/page.css" media="screen" rel="stylesheet" type="text/css" />
+  <link href="../stylesheets/proper.css" media="screen" rel="stylesheet" type="text/css" />
+
+  <!-- Libraries -->
+  <script src="../lib/underscore.js"></script>
+  <script src="../lib/jquery-min.js"></script>
+  <script src="../lib/jquery.hotkeys.js"></script>
+  <script src="../lib/codemirror.js"></script>
+
+  <!-- Source -->
+  <script src="../proper.js"></script>
+  <script src="runner.js"></script>
+
+  <script>
+    // Proper Init
+    $(function() {
+        var proper = new Proper({
+          el: '#content'
+        });
+
+        var runner = new TestRunner(proper, fixture, [
+          // after first operation has been applied
+          function() {
+            assert(proper.content().length === 78);
+            assert(proper.annotations().length === 0);
+          },
+          // after second operation has been applied
+          function() {
+            assert(proper.content().length === 78);
+            assert(proper.annotations().length === 1);
+          },
+          // after third operation has been applied
+          function() {
+            assert(proper.content().length === 78);
+            assert(proper.annotations().length === 1);
+            assert(proper.get('first-annotation').author === )
+          }
+        ]);
+        runner.run();
+    });
+  </script>
+</head>
+<body>
+  <h1>PROPER&trade; - Semantic Rich Text Editor (Version 0.5.0-work-in-progress)</h1>
+  
+  <div id="main">
+    <form><textarea id="content" class="editable" name="code">Lorem ipsum dolor sit amet, consectetur adipisicing elit,</textarea></form>
+  </div>
+  
+  <div id="source">
+
+  </div>
+  
+</body> 
+</html>
