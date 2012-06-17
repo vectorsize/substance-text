@@ -129,7 +129,7 @@
         restetCursor(range);
 
         // Fast marking techinque
-        $('.' + note.type).addClass('selected');
+        $('#' + note.type).addClass('selected');
         annotationList.push(note);
       }
     }
