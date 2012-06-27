@@ -1,102 +1,125 @@
-<!DOCTYPE html> 
-<html> 
-<head> 
-  <title>PROPER&trade; - Semantic Rich Text Editor</title>  
-  
-  <!-- Styles -->
-  <link href="stylesheets/codemirror.css" media="screen" rel="stylesheet" type="text/css" />
-  <link href="stylesheets/page.css" media="screen" rel="stylesheet" type="text/css" />
-  <link href="stylesheets/proper.css" media="screen" rel="stylesheet" type="text/css" />
+<html>
+<head>
+  <title>surface Surface</title>
+  <link rel="stylesheet" type="text/css" href="./stylesheets/codemirror.css">
+  <link rel="stylesheet" type="text/css" href="./stylesheets/text.css">
 
   <!-- Libraries -->
-  <script src="lib/underscore.js"></script>
-  <script src="lib/jquery-min.js"></script>
-  <script src="lib/jquery.hotkeys.js"></script>
-  <script src="lib/codemirror.js"></script>
+    <script src="lib/underscore.js"></script>
+    <script src="lib/jquery-min.js"></script>
+    <script src="lib/jquery.hotkeys.js"></script>
+    <script src="lib/codemirror.js"></script>
 
-  <!-- Source -->
-  <script src="proper.js"></script>
+    <!-- Source -->
+    <script src="lib/surface/surface.js"></script>
 
-  <script>
-    // Proper Init
-    $(function() {
+    <script>
+      // surface Init
+      $(function() {
 
-        var proper = new Proper({
+        var surface = new Surface({
           el: '#content'
         });
 
-        // Gets proper.selection()
-        $('#selection').click(function(e){
+        // Annotates link
+        $('#lnk a').click(function(e){
           e.preventDefault();
-          console.log('Selection:');
-          console.log(proper.selection());
-        });
-
-        // Annotates comment
-        $('#comment').click(function(e){
-          e.preventDefault();
-          proper.annotate({
-            // id: "/comment/x", should this be set from inside proper instead?
-            type: "comment",
+          surface.annotate({
+            type: "link",
             data: {
               author: "John Doe",
-              content: "You might want to spell that right. Right? :)"
+              url: "http://surface.io/"
             }
           });
-          console.log('Annotations:');
-          console.log(proper.annotations());
         });
 
         // Annotates em
-        $('#em').bind('click', function(e){
+        $('#em a').click( function(e){
           e.preventDefault();
-          proper.annotate({
+          surface.annotate({
             type: "em"
           });
-          console.log('Annotations:');
-          console.log(proper.annotations());
         });
 
         // Annotates strong
-        $('#strong').bind('click', function(e){
+        $('#str a').click( function(e){
           e.preventDefault();
-          proper.annotate({
-            type: "strong"
+          surface.annotate({
+            type: "str"
           });
-          console.log('Annotations:');
-          console.log(proper.annotations());
         });
 
-        $('.command').click(function(){
-          // console.log('ee');
+        surface.on('selection:change', function(sel) {
+          // Returns all annotations matching that selection
+          var annotations = surface.annotations(sel);
+
+          // Update the UI
+          $('.command').removeClass('active');
+          $('.log').removeClass('active');
+          
+          _.each(annotations, function(annotation) {
+            $('#' + annotation.type).addClass('active');
+            $('#' + annotation.id).addClass('active');
+          });
         });
-    });
-  </script>
+
+        surface.on('selection:click', function() {
+          $('.command').removeClass('active');
+          $('.log').removeClass('active');
+        });
+
+        // Display the stored annotations
+        surface.on('annotation:change', function(sel) {
+          $('li#' + sel).addClass('active');
+
+          var annotations = surface.annotations();
+          var $log = $('#annotationLog');
+          $log.html('');
+          _.each(annotations, function(annotation) {
+            var $li = '<li class="log active" id="' + annotation.id + '">\
+                    <em>Type: </em>' + annotation.type + '<br>\
+                    <em>Position: </em> {start:' + annotation.pos.start + ', end' + annotation.pos.end + '}<br>\
+                    <em>Id: </em> ' + annotation.id + '\
+                  </li>';
+            $log.append($li);
+          });
+        });
+
+      });
+    </script>
+
 </head>
 <body>
-  <h1>PROPER&trade; - Semantic Rich Text Editor (Version 0.5.0-work-in-progress)</h1>
-  
-  <div id="main">
-    <ul class="proper-commands">
-      <li><a href="#comment" title="Annotate" class="command comment ul" id="comment" command="comment"><div>Comment</div></a>
-      <li><a href="#em" title="Emphasis (CTRL+SHIFT+E)" class="command em" id="em" command="em"><div>Emphasis</div></a></li>
-      <li><a href="#strong" title="Strong (CTRL+SHIFT+S)" class="command strong" id="strong" command="strong"><div>Strong</div></a></li>
-    </ul>
-    <form><textarea id="content" class="editable" name="code">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+  <header>
+    <h1>Substance Text</h1>
+    <nav>
+      <ul>
+        <li class="command" id="em"><a href="#em">em</a></li>
+        <li class="command" id="str"><a href="#str">str</a></li>
+        <li class="command" id="lnk"><a href="#lnk">lnk</a></li>
+        <!-- <li class="command" id="all"><a href="#all">getAll</a></li> -->
+      </ul>
+    </nav>
+  </header>
+
+  <section id="surface">
+    <form>
+      <textarea id="content" class="editable" name="code">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
 Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
 
-Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</textarea></form>
-  </div>
-  
-  <div id="source">
+Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
-  </div>
-  <br class="clear"/>
-  <div class="credits">
-    Straight from the labs of <a href="http://quasipartikel.at">Quaspartikel</a> 
-    and <a href="http://froodee.at/">froodee</a>. 
-  </div>
-  
-  <a href="http://github.com/michael/proper"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
-</body> 
+Substance Text is built on top of Substance Surface, a low-level command based editing API.
+      </textarea>
+    </form>
+  </section>
+    <aside>
+      <div id="annotations">
+        <h2>Annotations</h2>
+        <div id="annotationLog">
+          
+        </div>
+      </div>
+    </aside>
+</body>
 </html>

@@ -1,0 +1,166 @@
+/* @override http://localhost/substance/srfc/stilesheets/surface.css */
+body{
+  margin: 0;
+  padding: 0;
+  font-family: "Lucida Grande", Lucida, Verdana, sans-serif;
+  background-color: #eef2e6;
+}
+
+header{
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+h1{
+  padding-left: 30px;
+  font-size: 14px;
+  color: #d4d5ce;
+  padding-top: 6px;
+  background-color: #4f4f4f;
+  margin: 0;
+  padding-bottom: 6px;
+  font-weight: normal;
+  font-style: normal;
+}
+
+h1, h2{
+  padding-left: 30px;
+  font-size: 14px;
+  color: #d4d5ce;
+  padding-top: 6px;
+  background-color: #4f4f4f;
+  margin: 0;
+  padding-bottom: 6px;
+  font-weight: normal;
+  font-style: normal;
+}
+
+nav {
+  background-color: #dde1d7;
+  padding: 23px 0 0 30px;
+}
+
+nav ul{
+  list-style-type: none;
+  margin: 0;
+  width: 100%;
+  padding: 0;
+  height: 43px;
+}
+
+nav ul li{
+  float: left;
+  margin-right: 3px;
+  padding: 6px;
+  background-color: #90938c;
+  border-radius: 3px;
+}
+
+nav ul li a{
+  color: #d4d5ce;
+  text-decoration: none;
+}
+
+/* @override 
+  http://localhost/substance/srfc/stilesheets/surface.css
+  http://localhost/substance/srfc/stylesheets/surface.css
+*/
+
+body{
+  margin: 0;
+  padding: 0;
+}
+
+header{
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+h1{
+  padding-left: 30px;
+  font-size: 14px;
+  color: #90938c;
+  padding-top: 6px;
+  background-color: #4f4f4f;
+  margin: 0;
+  padding-bottom: 6px;
+}
+
+nav {
+  background-color: #dde1d7;
+  padding: 23px 0 0 30px;
+}
+
+nav ul{
+  list-style-type: none;
+  margin: 0;
+  width: 100%;
+  padding: 0;
+  height: 43px;
+}
+
+nav ul li{
+  float: left;
+  margin-right: 3px;
+  padding: 6px;
+  background-color: #90938c;
+  border-radius: 3px;
+}
+
+nav ul li a{
+  text-decoration: none;
+}
+
+nav ul li a:link,
+nav ul li a:active{
+  color: #fff;
+}
+
+nav ul li a:hover,
+nav ul li a:visited{
+  color: #fff;
+}
+
+nav ul li.active{
+  background-color: #424341;
+}
+
+section#surface {
+  width: 600px;
+  background-color: #fff;
+  float: left;
+  margin-left: 30px;
+  height: 700px;
+  padding: 10px;
+}
+
+aside{
+  background-color: #d6dacd;
+  margin-left: 30px;
+  float: left;
+  width: 240px;
+  margin-top: 30px;
+  padding: 0;
+}
+
+#annotationLog li {
+  background-color: #90938c;
+  color: #d4d5ce;
+  padding-left: 6px;
+  font-size: 12px;
+  padding: 5px;
+  list-style-type: none;
+  margin-top: 1px;
+}
+
+#annotationLog li.active{
+  background-color: #4f4f4f;
+}
+
+#annotationLog li em{
+  font-weight: normal;
+  font-style: normal;
+  color: #fff;
+}
