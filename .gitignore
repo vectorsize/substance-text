@@ -1,0 +1,7 @@
+*.log
+log/*
+pkg/*
+doc
+cov
+pkg
+.DS_Store
