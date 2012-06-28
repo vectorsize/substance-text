@@ -36,12 +36,12 @@ h1, h2{
   font-style: normal;
 }
 
-nav {
+.tools {
   background-color: #dde1d7;
   padding: 23px 0 0 30px;
 }
 
-nav ul{
+.tools ul{
   list-style-type: none;
   margin: 0;
   width: 100%;
@@ -49,7 +49,7 @@ nav ul{
   height: 43px;
 }
 
-nav ul li{
+.tools ul li{
   float: left;
   margin-right: 3px;
   padding: 6px;
@@ -57,7 +57,7 @@ nav ul li{
   border-radius: 3px;
 }
 
-nav ul li a{
+.tools ul li a{
   color: #d4d5ce;
   text-decoration: none;
 }

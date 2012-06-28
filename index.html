@@ -21,6 +21,20 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 Substance Text is built on top of Substance Surface, a low-level command based editing API.
     </script>
 
+    <script name="text" type="text/html">
+      <div class="tools">
+        <ul>
+          <li class="command em"><a href="#">em</a></li>
+          <li class="command strong"><a href="#">str</a></li>
+          <li class="command link"><a href="#">lnk</a></li>
+          <!-- <li class="command" id="all"><a href="#all">getAll</a></li> -->
+        </ul>
+      </div>
+      <div id="surface">
+        <div id="content"></div>
+      </div>
+    </script>
+
     <!-- Source -->
     <script src="text.js"></script>
 
@@ -28,8 +42,28 @@ Substance Text is built on top of Substance Surface, a low-level command based e
     <script>
       $(function() {
         var text = new Substance.Text({
-          el: '#content',
+          el: '#editor',
           value: $('script[name=content]').text()
+        }).render();
+
+        // Debug
+        // -------------
+
+        text.surface.on('annotation:change', function(sel) {
+          $('li#' + sel).addClass('active');
+
+          var annotations = text.surface.annotations();
+          var $log = $('#annotationLog');
+          $log.empty();
+          _.each(annotations, function(annotation) {
+            // TODO: use EJS templating
+            var $li = '<li class="log active" id="' + annotation.id + '">\
+                    <em>Type: </em>' + annotation.type + '<br>\
+                    <em>Position: </em> {start:' + annotation.pos.start + ', end' + annotation.pos.end + '}<br>\
+                    <em>Id: </em> ' + annotation.id + '\
+                  </li>';
+            $log.append($li);
+          });
         });
       });
     </script>
@@ -37,27 +71,20 @@ Substance Text is built on top of Substance Surface, a low-level command based e
 <body>
   <header>
     <h1>Substance Text</h1>
-    <nav>
-      <ul>
-        <li class="command em"><a href="#">em</a></li>
-        <li class="command strong"><a href="#">str</a></li>
-        <li class="command link"><a href="#">lnk</a></li>
-        <!-- <li class="command" id="all"><a href="#all">getAll</a></li> -->
-      </ul>
-    </nav>
   </header>
 
-  <div id="surface">
-    <div id="content"></div>
+  <div id="editor">
+
   </div>
 
-    <aside>
-      <div id="annotations">
-        <h2>Annotations</h2>
-        <div id="annotationLog">
-          
-        </div>
+  <!-- Debug Stuff -->
+  <aside>
+    <div id="annotations">
+      <h2>Annotations</h2>
+      <div id="annotationLog">
+        
       </div>
-    </aside>
+    </div>
+  </aside>
 </body>
 </html>
