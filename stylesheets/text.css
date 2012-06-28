@@ -127,7 +127,7 @@ nav ul li.active{
   background-color: #424341;
 }
 
-section#surface {
+#surface {
   width: 600px;
   background-color: #fff;
   float: left;
