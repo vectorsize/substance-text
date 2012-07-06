@@ -1,3 +1,0 @@
-[submodule "lib/surface"]
-	path = lib/surface
-	url = git://github.com/substance/surface.git
