@@ -20,7 +20,7 @@ Substance.Text = Dance.Performer.extend({
 
   events: {
     'click .command.em a': '_annotateEm',
-    'click .command.strong a': '_annotateStrong',
+    'click .command.str a': '_annotateStrong',
     'click .command.link a': '_annotateLink'
   },
 
