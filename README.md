@@ -36,3 +36,4 @@ More description to come...
 
 - Implement link types differently to address the link CRUD nature
 - Same workflow would ideally work for comments (Should we have a separate part in the UI dedicated to CRUDed elements?)
+- should the link be attached to the surface too besides just styling it? (probably)
