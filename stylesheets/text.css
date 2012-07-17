@@ -57,15 +57,14 @@ h1, h2{
   border-radius: 3px;
 }
 
+.tools ul li.active{
+  background-color: #4F4F4F;
+}
+
 .tools ul li a{
   color: #d4d5ce;
   text-decoration: none;
 }
-
-/* @override 
-  http://localhost/substance/srfc/stilesheets/surface.css
-  http://localhost/substance/srfc/stylesheets/surface.css
-*/
 
 body{
   margin: 0;
@@ -163,4 +162,17 @@ aside{
   font-weight: normal;
   font-style: normal;
   color: #fff;
+}
+
+.surface-em{
+  color: #feb620;
+}
+.surface-str{
+  font-weight: bold;
+}
+
+/*fake link aspect*/
+.surface-link{
+  color: #0000FF;
+  text-decoration:underline;
 }
