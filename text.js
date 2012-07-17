@@ -21,7 +21,8 @@ Substance.Text = Dance.Performer.extend({
   match: {},
   
   events: {
-    'click a.toggle-annotation': 'toggleCommand'
+    'click a.toggle-annotation': 'toggleCommand',
+    'click a.toggle-link-interface': 'toggleLinkUI'
   },
 
   toggleCommand: function(e){
@@ -45,11 +46,13 @@ Substance.Text = Dance.Performer.extend({
           break;
 
         case 'lnk':
+          $('div#add-link').hide();
+          var url = $('input[data-type="lnk-url"]').val();
           this.surface.annotate({
             type: "lnk",
             data: {
               author: "John Doe",
-              url: "http://substance.io/"
+              url: url
             }
           });
 
@@ -63,6 +66,10 @@ Substance.Text = Dance.Performer.extend({
       }
     }
 
+  },
+
+  toggleLinkUI: function(){
+    $('div#add-link').show();
   },
 
   initialize: function(options) {
@@ -124,6 +131,13 @@ Substance.Text = Dance.Performer.extend({
           'start': annotation.pos.start,
           'end': annotation.pos.end
         };
+
+
+        if(typeof annotation.data !== 'undefined'){
+          tplVars.data = JSON.stringify(annotation.data);
+        }else{
+          tplVars.data = 'empty';
+        }
 
         $log.append(_.tpl('log', tplVars));
       }

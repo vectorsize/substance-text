@@ -12,14 +12,12 @@
     <script src="lib/codemirror.js"></script>
     <script src="lib/surface.js"></script>
 
-    <script name="content" type="text/html">
-Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+    <script name="content" type="text/html">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
 Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
 
 Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
-Substance Text is built on top of Substance Surface, a low-level command based editing API.
-    </script>
+Substance Text is built on top of Substance Surface, a low-level command based editing API.</script>
 
     <!-- Templates -->
     <script name="text" type="text/html">
@@ -27,8 +25,12 @@ Substance Text is built on top of Substance Surface, a low-level command based e
         <ul>
           <li><a href="#" class="toggle-annotation" data-type="em">em</a></li>
           <li><a href="#" class="toggle-annotation" data-type="str">str</a></li>
-          <li><a href="#" class="toggle-annotation" data-type="lnk">lnk</a></li>
+          <li><a href="#" class="toggle-link-interface" data-type="lnk-activate">lnk</a></li>
         </ul>
+        <div id="add-link">
+          <input type="text" data-type="lnk-url" value="http://">
+          <a href="#" class="toggle-annotation" data-type="lnk">Add</a>
+        </div>
       </div>
       <div id="surface">
         <div id="content"></div>
@@ -39,7 +41,8 @@ Substance Text is built on top of Substance Surface, a low-level command based e
       <li class="log active" id="<%= id %>">
           <em>Type: </em><%= type %><br>
           <em>Position: </em> {start:<%= start %>, end: <%= end %>}<br>
-          <em>Id: </em> <%= id %>
+          <em>Id: </em> <%= id %><br>
+          <em>Data: </em> <%= data %>
       </li>
     </script>
 
