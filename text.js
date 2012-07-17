@@ -18,40 +18,57 @@ _.tpl = function(tpl, ctx) {
 
 Substance.Text = Dance.Performer.extend({
 
+  match: {},
+  
   events: {
-    'click .command.em a': '_annotateEm',
-    'click .command.str a': '_annotateStrong',
-    'click .command.link a': '_annotateLink'
+    'click a.toggle-annotation': 'toggleCommand'
   },
 
-  _annotateLink: function(e) {
+  toggleCommand: function(e){
     e.preventDefault();
-    this.surface.annotate({
-      type: "link",
-      data: {
-        author: "John Doe",
-        url: "http://substance.io/"
+    var $clicked = $(e.currentTarget);
+    var type = $clicked.attr('data-type');
+    var isActive = $clicked.hasClass('active');
+    var annotations = this.surface.annotations();
+
+    if(isActive) {
+      this.surface.remove(this.match);
+      this.updateControls({empty: true});
+      this.clearStatus();
+    }else{
+      
+      switch(type){
+        case 'em':
+          this.surface.annotate({
+            type: "em"
+          });
+          break;
+
+        case 'lnk':
+          this.surface.annotate({
+            type: "lnk",
+            data: {
+              author: "John Doe",
+              url: "http://substance.io/"
+            }
+          });
+
+          break;
+
+        case 'str':
+          this.surface.annotate({
+            type: "str"
+          });
+          break;
       }
-    });
-  },
+    }
 
-  _annotateEm: function(e) {
-    e.preventDefault();
-    this.surface.annotate({
-      type: "em"
-    });
-  },
-
-  _annotateStrong: function(e) {
-    e.preventDefault();
-    this.surface.annotate({
-      type: "str"
-    });
   },
 
   initialize: function(options) {
     _.bindAll(this, 'updateControls');
     _.bindAll(this, 'clearStatus');
+    _.bindAll(this, 'storeMatch');
   },
 
   // Update Controls
@@ -63,8 +80,7 @@ Substance.Text = Dance.Performer.extend({
       // We have a type, annotation has just been added
       // Returns all annotations
       var annotations = this.surface.annotations();
-      
-      $('li.command.' + sel.type).addClass('active');
+      $('a[data-type="' + sel.type + '"]').addClass('active');
       // debug
       // $log.empty();
     } else{
@@ -75,29 +91,44 @@ Substance.Text = Dance.Performer.extend({
 
     // Debug
     // -----
-
     var $log = $('#annotationLog');
-
+    if(sel.empty){
+      $log.empty();
+    }
+    this.buildLog();
     // if it's not from a match event we add one item to the log
     if(!sel.match){
-      _.each(annotations, function(annotation) {
-        var $current = $('li#' + annotation.id);
-        if($current.length === 0){
-
-          var tplVars = {
-            'id': annotation.id ,
-            'type': annotation.type,
-            'start': annotation.pos.start,
-            'end': annotation.pos.end
-          };
-
-          $log.append(_.tpl('log', tplVars));
-        }
-      });
-    }else{
+      this.buildLog();
+    } else{
     // if it's from a match event we select the matching one
       $('li#' + sel.id).addClass('active');
     }
+  
+  },
+
+  storeMatch: function(matchel){
+    this.match = matchel;
+  },
+
+  buildLog: function(){
+    var annotations = this.surface.annotations();
+    var $log = $('#annotationLog');
+
+    _.each(annotations, function(annotation) {
+      var $current = $('li#' + annotation.id);
+      if($current.length === 0){
+
+        var tplVars = {
+          'id': annotation.id ,
+          'type': annotation.type,
+          'start': annotation.pos.start,
+          'end': annotation.pos.end
+        };
+
+        $log.append(_.tpl('log', tplVars));
+      }
+    });
+
   },
 
   // Clear all the UI selections
@@ -105,7 +136,7 @@ Substance.Text = Dance.Performer.extend({
 
   clearStatus: function(){
     // When the selection doesnt match we deselect everything
-    $('.command').removeClass('active');
+    $('.toggle-annotation').removeClass('active');
     $('.log').removeClass('active');
   },
 
@@ -115,7 +146,9 @@ Substance.Text = Dance.Performer.extend({
   registerEvents: function() {
     this.surface.on('selection:change', this.updateControls);
     this.surface.on('annotation:change', this.updateControls);
+    this.surface.on('annotation:change', this.storeMatch);
     this.surface.on('annotation:match', this.updateControls);
+    this.surface.on('annotation:match', this.storeMatch);
     this.surface.on('annotation:nomatch', this.clearStatus);
 
     // Victor, what's going on here? :)

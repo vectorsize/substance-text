@@ -49,7 +49,7 @@ h1, h2{
   height: 43px;
 }
 
-.tools ul li{
+.tools ul li a{
   float: left;
   margin-right: 3px;
   padding: 6px;
@@ -57,7 +57,7 @@ h1, h2{
   border-radius: 3px;
 }
 
-.tools ul li.active{
+.tools ul li a.active{
   background-color: #4F4F4F;
 }
 
@@ -172,7 +172,7 @@ aside{
 }
 
 /*fake link aspect*/
-.surface-link{
+.surface-lnk{
   color: #0000FF;
   text-decoration:underline;
 }
