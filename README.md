@@ -34,5 +34,5 @@ More description to come...
 
 ## TODO
 
-- Implement link types differently to address the link CRUD aspects
+- Implement link types differently to address the link CRUD nature
 - Same workflow would ideally work for comments (Should we have a separate part in the UI dedicated to CRUDed elements?)
