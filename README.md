@@ -30,7 +30,7 @@ More description to come...
 
 ## Todo - Brainstorming
 
-- Implement link types differently to address the link CRUD nature
+- Implement link types separatedly due to their CRUD nature
 	- Deleting a link, editing the current url...
 	- The same workflow would ideally work for comments (Should we have a separate part in the UI dedicated to CRUDed elements?)
 - Should the link be attached to the surface too besides just styling it? (probably)
