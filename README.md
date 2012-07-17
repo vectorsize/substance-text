@@ -32,7 +32,7 @@ More description to come...
 - Tim Baumann ([timjb](http://github.com/timjb))
 - Michael Aufreiter ([michael](http://github.com/michael))
 
-## TODO
+## Todo
 
 - Implement link types differently to address the link CRUD nature
 - Same workflow would ideally work for comments (Should we have a separate part in the UI dedicated to CRUDed elements?)
