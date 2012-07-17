@@ -31,3 +31,8 @@ More description to come...
 - Victor Saiz ([vectorsize](http://github.com/vectorsize))
 - Tim Baumann ([timjb](http://github.com/timjb))
 - Michael Aufreiter ([michael](http://github.com/michael))
+
+## TODO
+
+- Implement link types differently to address the link CRUD aspects
+- Same workflow would ideally work for comments (Should we have a separate part in the UI dedicated to CRUDed elements?)
