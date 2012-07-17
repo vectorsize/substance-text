@@ -32,7 +32,7 @@ More description to come...
 - Tim Baumann ([timjb](http://github.com/timjb))
 - Michael Aufreiter ([michael](http://github.com/michael))
 
-## Todo
+## Todo - Brainstorming
 
 - Implement link types differently to address the link CRUD nature
 	- Deleting a link, editing the current url...
