@@ -2,7 +2,7 @@
 
 A visual text editor built on [Surface](http://github.com/substance/surface), providing support for text emphasis, and links. Thanks to Victor Saiz (vectorsize) for working on Surface. Substance Text is the official successor of [Proper](http://github.com/michael/proper) if you're wondering why this repository is now called `text`.
 
-![Substance Text](http://substance.github.com/text/assets/text2.png)
+![Substance Text](http://substance.github.com/text/assets/text3.png)
 
 You can play with the demo [here] (http://about.substance.io/text/) (in progress)
 
