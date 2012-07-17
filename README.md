@@ -14,13 +14,7 @@ More description to come...
    $ git clone git@github.com:substance/text.git
    ```
 
-2. Update submodules
-   
-   ```bash
-   $ git submodule update
-   ```
-
-3. Open your browser
+2. Open your browser
    
    ```bash
    $ open index.html
