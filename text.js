@@ -16,6 +16,17 @@ _.tpl = function(tpl, ctx) {
 // Substance.Text
 // --------------
 
+// TODO:  Implement link types separatedly due to their CRUD nature?
+//        Deleting a link, editing the current url...
+//        the same workflow would ideally work for comments (Should we have a 
+//        separate part in the UI dedicated to CRUDed elements?)
+// TODO:  Should the link be attached to the surface too besides just styling it?
+// TODO:  Should comments be always available? i.e. at the same time we are adding 
+//        a link we comment about this link instead of having to re-select the range an 
+//        adding a comment? this would allow to comment on why one emphasized a part of 
+//        the text, or would make it possible to specify when color-marking this marked part is relevant...
+// TODO:  Add link back to github from the demo
+
 Substance.Text = Dance.Performer.extend({
 
   match: {},
