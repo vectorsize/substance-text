@@ -4,7 +4,7 @@ A visual text editor built on [Surface](http://github.com/substance/surface), pr
 
 ![Substance Text](http://substance.github.com/text/assets/text3.png)
 
-You can play with the demo [here] (http://about.substance.io/text/) (in progress)  
+You can play with the demo [here] (http://interior.substance.io/text/) (in progress)  
 More description to come...
 
 ## Run locally
