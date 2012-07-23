@@ -1,81 +1,129 @@
+<!doctype html>
 <html>
 <head>
-  <title>Substance Text</title>
-  <link rel="stylesheet" type="text/css" href="./stylesheets/codemirror.css">
-  <link rel="stylesheet" type="text/css" href="./stylesheets/text.css">
+<title>Substance/text demo</title>
+<link rel="stylesheet" href="stylesheets/codemirror.css">
+<link rel="stylesheet" href="stylesheets/style.css">
 
-    <!-- Libraries -->
-    <script src="lib/underscore.js"></script>
-    <script src="lib/jquery-min.js"></script>
-    <script src="lib/jquery.hotkeys.js"></script>
-    <script src="lib/dance.js"></script>
-    <script src="lib/codemirror.js"></script>
-    <script src="lib/surface.js"></script>
+<!-- Libraries -->
+<script src="lib/underscore.js"></script>
+<script src="lib/jquery-min.js"></script>
+<script src="lib/jquery.hotkeys.js"></script>
+<script src="lib/dance.js"></script>
+<script src="lib/codemirror.js"></script>
+<script src="lib/surface.js"></script>
+<style type="text/css">
+/*
+	Text annotations styling
+*/	
+.surface-em{
+  color: #feb620;
+}
+.surface-str{
+  font-weight: bold;
+}
 
-    <script name="content" type="text/html">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+/*fake link aspect*/
+.surface-lnk{
+  color: #0000FF;
+  text-decoration:underline;
+}
+
+/*we hide the log*/
+.debug thead{
+	display:none;
+}
+</style>
+
+<!-- Templates -->
+<script name="text" type="text/html">
+<aside class="tools">
+<ul>
+	<li><a href="#em" class="toggle-annotation" data-type="em">em</a></li>
+	<li><a href="#str" class="toggle-annotation" data-type="str">str</a></li>
+</ul>
+</aside>
+<article class="node" id="content"></article>
+<div class="clear"></div>
+</script>
+
+<script name="log" type="text/html">
+<tr id="<%= id %>">
+	<td><%= type %></td>
+	<td>c<%= start %></td>
+	<td>c<%= end %></td>
+	<td><%= id %></td>
+</tr>
+
+<% if (typeof(url) != 'undefined' && typeof(autor) != 'undefined') { %>
+	<tr class="data">
+		<th>Data</th>
+		<td colspan="3">
+			<table cellspacing="0">
+				<tr>
+					<th>author</th>
+					<th>url</th>
+				</tr>
+				<tr>
+					<td><%= autor %></td>
+					<td><%= url %></td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+<% } %>
+
+</script>
+
+<!-- Source -->
+<script src="text.js"></script>
+
+<script name="content" type="text/html">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
 Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
 
 Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
 Substance Text is built on top of Substance Surface, a low-level command based editing API.</script>
 
-    <!-- Templates -->
-    <script name="text" type="text/html">
-      <div class="tools">
-        <ul>
-          <li><a href="#" class="toggle-annotation" data-type="em">em</a></li>
-          <li><a href="#" class="toggle-annotation" data-type="str">str</a></li>
-          <li><a href="#" class="toggle-link-interface" data-type="lnk-activate">lnk</a></li>
-        </ul>
-        <div id="add-link">
-          <input type="text" data-type="lnk-url" value="http://">
-          <a href="#" class="toggle-annotation" data-type="lnk">Add</a>
-        </div>
-      </div>
-      <div id="surface">
-        <div id="content"></div>
-      </div>
-    </script>
+<!-- Boot -->
+<script>
+  $(function() {
+    var text = new Substance.Text({
+      el: '#editor',
+      value: $('script[name=content]').text()
+    }).render();
+  });
+</script>
 
-    <script name="log" type="text/html">
-      <li class="log active" id="<%= id %>">
-          <em>Type: </em><%= type %><br>
-          <em>Position: </em> {start:<%= start %>, end: <%= end %>}<br>
-          <em>Id: </em> <%= id %><br>
-          <em>Data: </em> <%= data %>
-      </li>
-    </script>
-
-    <!-- Source -->
-    <script src="text.js"></script>
-
-    <!-- Boot -->
-    <script>
-      $(function() {
-        var text = new Substance.Text({
-          el: '#editor',
-          value: $('script[name=content]').text()
-        }).render();
-      });
-    </script>
 </head>
 <body>
-  <header>
-    <h1>Substance Text</h1>
-  </header>
-
-  <div id="editor">
-
-  </div>
-
-  <!-- Debug Stuff -->
-  <aside>
-    <div id="annotations">
-      <h2>Annotations</h2>
-      <div id="annotationLog">
-        
-      </div>
-    </div>
-  </aside>
+	<header>
+		<nav>
+			<ul>
+				<li><a title="Substance/Text" href="http://interior.substance.io/modules/text.html">Substance Text</a></li>
+			</ul>
+		</nav>
+	</header>
+	<div class="main">
+		<section class="doc">
+			<div id="editor"></div>
+		</section>
+	
+		<section class="debug">
+			<table cellspacing="0">
+				<caption>Debug </caption>  
+					<thead>  
+					<tr>  
+						<th>Type</th>
+						<th>Start</th>
+						<th>End</th>
+						<th>ID</th>
+					</tr>
+				</thead>
+				<tbody id="annotationLog">
+				</tbody>
+			</table>
+		</section>
+	</div>
 </body>
 </html>

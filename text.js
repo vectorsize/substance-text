@@ -119,7 +119,7 @@ Substance.Text = Dance.Performer.extend({
       this.buildLog();
     } else{
     // if it's from a match event we select the matching one
-      $('li#' + sel.id).addClass('active');
+      $('tr#' + sel.id).addClass('active');
     }
   
   },
@@ -133,7 +133,7 @@ Substance.Text = Dance.Performer.extend({
     var $log = $('#annotationLog');
 
     _.each(annotations, function(annotation) {
-      var $current = $('li#' + annotation.id);
+      var $current = $('tr#' + annotation.id);
       if($current.length === 0){
 
         var tplVars = {
@@ -145,11 +145,15 @@ Substance.Text = Dance.Performer.extend({
 
 
         if(typeof annotation.data !== 'undefined'){
-          tplVars.data = JSON.stringify(annotation.data);
+          tplVars.autor = JSON.stringify(annotation.data.autor);
+          tplVars.autor = JSON.stringify(annotation.data.url);
         }else{
           tplVars.data = 'empty';
         }
-
+        var $thead = $('.debug thead');
+        if($thead.is(':hidden')){
+          $thead.show();
+        }
         $log.append(_.tpl('log', tplVars));
       }
     });
