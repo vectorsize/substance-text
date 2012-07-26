@@ -42,7 +42,7 @@ Substance.Text = Dance.Performer.extend({
     var type = $clicked.attr('data-type');
     var isActive = $clicked.hasClass('active');
     var annotations = this.surface.annotations();
-    
+
     if(isActive) {
       this.surface.remove(this.match);
       this.updateControls({empty: true});
@@ -103,6 +103,7 @@ Substance.Text = Dance.Performer.extend({
     _.bindAll(this, 'clearStatus');
     _.bindAll(this, 'storeMatch');
     _.bindAll(this, 'setMode');
+    _.bindAll(this, 'buildLog');
   },
 
   // Update Controls
@@ -150,8 +151,6 @@ Substance.Text = Dance.Performer.extend({
 
     _.each(annotations, function(annotation) {
       var $current = $('tr#' + annotation.id);
-      if($current.length === 0){
-
         var tplVars = {
           'id': annotation.id ,
           'type': annotation.type,
@@ -173,7 +172,11 @@ Substance.Text = Dance.Performer.extend({
           $thead.show();
           $tdebug.find('table[data-type="debug-content"]').show();
         }
+
+      if($current.length === 0){
         $log.append(_.tpl('log', tplVars));
+      }else{
+        $current.replaceWith(_.tpl('log', tplVars));
       }
     });
 
@@ -195,6 +198,7 @@ Substance.Text = Dance.Performer.extend({
     this.surface.on('selection:change', this.updateControls);
     this.surface.on('annotation:change', this.updateControls);
     this.surface.on('annotation:change', this.storeMatch);
+    this.surface.on('annotation:update', this.buildLog);
     this.surface.on('annotation:match', this.updateControls);
     this.surface.on('annotation:match', this.storeMatch);
     this.surface.on('annotation:nomatch', this.clearStatus);
