@@ -30,21 +30,29 @@
 }
 
 /*we hide the log*/
-.debug thead{
+.debug thead,
+.debug table[data-type="debug-content"]{
 	display:none;
 }
 </style>
 
 <!-- Templates -->
 <script name="text" type="text/html">
-<aside class="tools">
-<ul>
-	<li><a href="#em" class="toggle-annotation" data-type="em">em</a></li>
-	<li><a href="#str" class="toggle-annotation" data-type="str">str</a></li>
-</ul>
-</aside>
-<article class="node" id="content"></article>
-<div class="clear"></div>
+	<aside class="tools editor hidden">
+	<ul>
+		<li><a href="#em" class="tool toggle-annotation" data-type="em">em</a></li>
+		<li><a href="#str" class="tool toggle-annotation" data-type="str">str</a></li>
+		<li><a href="#save" class="tool save" data-type="save">save</a></li>
+		<li><a href="#cancel" class="tool cancel" data-type="cancel">cancel</a></li>
+	</ul>
+	</aside>
+	<aside class="tools edit hidden">
+	<ul>
+		<li><a href="#edit" class="tool edit" data-type="edit">edit</a></li>
+	</ul>
+	</aside>
+	<article class="node" id="content"></article>
+	<div class="clear"></div>
 </script>
 
 <script name="log" type="text/html">
@@ -89,9 +97,11 @@ Substance Text is built on top of Substance Surface, a low-level command based e
 <script>
   $(function() {
     var text = new Substance.Text({
-      el: '#editor',
-      value: $('script[name=content]').text()
+      el: '#editor'
     }).render();
+
+    // set the value should be independent from the init
+    text.setValue($('script[name=content]').text());
   });
 </script>
 
@@ -123,6 +133,20 @@ Substance Text is built on top of Substance Surface, a low-level command based e
 				<tbody id="annotationLog">
 				</tbody>
 			</table>
+			<table cellspacing="0" data-type="debug-content">
+				<caption>Content</caption>
+				<thead>
+					<tr>
+						<th>Data</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td data-type="content-data">...</td>
+					</tr>
+				</tbody>
+			</table>
+		<div class="clear"></div>
 		</section>
 	</div>
 </body>

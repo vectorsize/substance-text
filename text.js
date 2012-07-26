@@ -32,7 +32,7 @@ Substance.Text = Dance.Performer.extend({
   match: {},
   
   events: {
-    'click a.toggle-annotation': 'toggleCommand',
+    'click a.tool': 'toggleCommand',
     'click a.toggle-link-interface': 'toggleLinkUI'
   },
 
@@ -74,6 +74,21 @@ Substance.Text = Dance.Performer.extend({
             type: "str"
           });
           break;
+
+        case 'edit':
+          this.surface.enable();
+          break;
+
+        case 'save':
+          this.surface.disable();
+          var content = this.surface.compile();
+          $('td[data-type="content-data"]').text(content);
+          break;
+
+        case 'cancel':
+          this.surface.cancel();
+          this.surface.disable();
+          break;
       }
     }
 
@@ -87,6 +102,7 @@ Substance.Text = Dance.Performer.extend({
     _.bindAll(this, 'updateControls');
     _.bindAll(this, 'clearStatus');
     _.bindAll(this, 'storeMatch');
+    _.bindAll(this, 'setMode');
   },
 
   // Update Controls
@@ -150,9 +166,12 @@ Substance.Text = Dance.Performer.extend({
         }else{
           tplVars.data = 'empty';
         }
-        var $thead = $('.debug thead');
+        var $tdebug = $('.debug');
+        var $thead = $tdebug.find(' thead');
+        
         if($thead.is(':hidden')){
           $thead.show();
+          $tdebug.find('table[data-type="debug-content"]').show();
         }
         $log.append(_.tpl('log', tplVars));
       }
@@ -179,11 +198,36 @@ Substance.Text = Dance.Performer.extend({
     this.surface.on('annotation:match', this.updateControls);
     this.surface.on('annotation:match', this.storeMatch);
     this.surface.on('annotation:nomatch', this.clearStatus);
+    this.surface.on('mode:change', this.setMode);
 
     // Victor, what's going on here? :)
     // When we deselect a range i.e by clicking anywhere in surface,
     // we clear the active states from the UI
-    this.surface.on('selection:click', this.clearStatus);
+    this.surface.on('selection:clear', this.clearStatus);
+  },
+
+  setMode: function(mode){
+    var speed = 100;
+    var modes = this.surface.getModes();
+    switch(mode){
+      case modes.IDLE:
+        $('.editor').fadeOut(speed);
+        break;
+
+      case modes.OFF:
+        $('.editor').fadeOut(speed);
+        $('.edit').fadeIn(speed);
+        break;
+
+      default:
+        $('.edit').fadeOut(speed);
+        $('.editor').fadeIn(speed);
+        break;
+    }
+  },
+
+  setValue: function(value){
+    this.surface.setValue(value);
   },
 
   render: function() {

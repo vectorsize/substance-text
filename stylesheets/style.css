@@ -1,14 +1,26 @@
-/* @override http://localhost/substance/text2/stylesheets/text.css */
+/* @override 
+	http://localhost/substance/text/stylesheets/style.css
+*/
 
 body{
   margin: 0;
   padding: 0;
   background-color: #eef2e6;
 	font-family: "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+/*we force the scroll to avoid glitches in cm for now*/
+	 overflow-y: scroll;
+}
+
+.main{
+	padding-bottom: 60px;
 }
 
 .clear{
 	clear: both;
+}
+
+.hidden{
+	display: none;
 }
 
 ul{
@@ -89,14 +101,33 @@ aside.tools li a[data-type="str"] {
 	background-image: url(str.png);
 }
 
-article.node{
+aside.tools li a[data-type="save"] {
+	background-image: url(save.png);
+	margin-top: 219px;
+}
+
+aside.tools li a[data-type="cancel"] {
+	background-image: url(cancel.png);
+}
+
+aside.tools li a[data-type="edit"] {
+	background-image: url(edit.png);
+}
+
+.node{
 	font-family: 'Courier New', Courier, mono, monospace;
-	border: 1px dashed #eef2e6;
 	float: left;
 	width: 90%;
 	padding: 20px;
 	margin-left: 40px;
 	cursor: text;
+	border-style: solid;
+	border-color: transparent;
+	border-width: 1px;
+}
+
+.node.active{
+	border: 1px dashed #eef2e6;
 }
 
 /*
@@ -109,13 +140,17 @@ section.debug{
   	border: 1px solid #3f3f3f;
 }
 
-table {
+.debug table {
 	padding: 0;
-	margin: 0;
-	width: 100%;
+	width: 49%;
 	font-size: 12px;
 	color: #90938c;
 	text-align: left;
+	float: left;
+}
+
+.debug table:not([data-type="debug-content"]){
+	margin: 0 2% 0 0;
 }
 
 caption {
