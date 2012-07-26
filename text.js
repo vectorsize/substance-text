@@ -42,7 +42,7 @@ Substance.Text = Dance.Performer.extend({
     var type = $clicked.attr('data-type');
     var isActive = $clicked.hasClass('active');
     var annotations = this.surface.annotations();
-
+    
     if(isActive) {
       this.surface.remove(this.match);
       this.updateControls({empty: true});
