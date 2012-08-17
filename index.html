@@ -1,153 +1,65 @@
-<!doctype html>
 <html>
 <head>
-<title>Substance/text demo</title>
-<meta charset="utf-8">
-<link rel="stylesheet" href="stylesheets/codemirror.css">
-<link rel="stylesheet" href="stylesheets/style.css">
+  <title>Text</title>
 
-<!-- Libraries -->
-<script src="lib/underscore.js"></script>
-<script src="lib/jquery-min.js"></script>
-<script src="lib/jquery.hotkeys.js"></script>
-<script src="lib/dance.js"></script>
-<script src="lib/codemirror.js"></script>
-<script src="lib/surface.js"></script>
-<style type="text/css">
-/*
-	Text annotations styling
-*/	
-.surface-em{
-  color: #feb620;
-}
-.surface-str{
-  font-weight: bold;
-}
+  <link rel="stylesheet" href="stylesheets/text.css">
+  <!-- Libs -->
+  <script type="text/javascript" src="lib/underscore.js"></script>
+  <script type="text/javascript" src="lib/jquery-min.js"></script>
+  <script type="text/javascript" src="lib/rangy/core.js"></script>
+  <script type="text/javascript" src="lib/rangy/dom.js"></script>
+  <script type="text/javascript" src="lib/rangy/domrange.js"></script>
+  <script type="text/javascript" src="lib/rangy/wrappedrange.js"></script>
+  <script type="text/javascript" src="lib/rangy/wrappedselection.js"></script>
+  <script type="text/javascript" src="lib/rangy/cssclassapplier.js"></script>
 
-/*fake link aspect*/
-.surface-lnk{
-  color: #0000FF;
-  text-decoration:underline;
-}
+  <!-- Templates -->
+  <script type="text/html" name="toolbar">
+    <div id="toolbar"></div>
+  </script>
 
-/*we hide the log*/
-.debug thead,
-.debug table[data-type="debug-content"]{
-	display:none;
-}
-</style>
+  <script type="text/html" name="tool">
+    <a class="tool" data-command="<%= type %>" href="#<%= type %>"><%= text %></a>
+  </script>
+  
+  <!-- 
+  <script type="text/html" name=""></script>
+   -->
 
-<!-- Templates -->
-<script name="text" type="text/html">
-	<aside class="tools editor hidden">
-	<ul>
-		<li><a href="#em" class="tool toggle-annotation" data-type="em">em</a></li>
-		<li><a href="#str" class="tool toggle-annotation" data-type="str">str</a></li>
-		<li><a href="#save" class="tool save" data-type="save">save</a></li>
-		<li><a href="#cancel" class="tool cancel" data-type="cancel">cancel</a></li>
-	</ul>
-	</aside>
-	<aside class="tools edit hidden">
-	<ul>
-		<li><a href="#edit" class="tool edit" data-type="edit">edit</a></li>
-	</ul>
-	</aside>
-	<article class="node" id="content"></article>
-	<div class="clear"></div>
-</script>
+  <!-- Source -->
+  <script type="text/plain" name="content">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+  consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</script>
+  
+  
+  <script type="text/javascript" src="lib/surface.js"></script>
+  <script type="text/javascript" src="text.js"></script>
 
-<script name="log" type="text/html">
-<tr id="<%= id %>">
-	<td><%= type %></td>
-	<td>c<%= start %></td>
-	<td>c<%= end %></td>
-	<td><%= id %></td>
-</tr>
+  <script type="text/javascript">
+    $(function() {
 
-<% if (typeof(url) != 'undefined' && typeof(autor) != 'undefined') { %>
-	<tr class="data">
-		<th>Data</th>
-		<td colspan="3">
-			<table cellspacing="0">
-				<tr>
-					<th>author</th>
-					<th>url</th>
-				</tr>
-				<tr>
-					<td><%= autor %></td>
-					<td><%= url %></td>
-				</tr>
-			</table>
-		</td>
-	</tr>
-<% } %>
+      var text = new Substance.Text({
+        el: "#content", 
+        content: $('script[name=content]').text(), 
+        annotations: [
+        //     {
+        //       "id": "a:1",
+        //       "type": "comment",
+        //       "pos": [0,10],
+        //       "properties": {"content": "This is a comment for you"}
+        //     },
+        //     {
+        //       "id": "a:2",
+        //       "type": "em",
+        //       "pos": [20,24]
+        //     }
+        //   
+        ]
+      });
 
-</script>
-
-<!-- Source -->
-<script src="text.js"></script>
-
-<script name="content" type="text/html">Surface is intended to be an extensible low-level interface for rich text editing.
-
-It doesn´t introduce any UI components, but an API for managing user-defined text annotations.
-
-For an implementation of a ritch text editor and several examples please refer to Substance Text</script>
-
-<!-- Boot -->
-<script>
-  $(function() {
-    var text = new Substance.Text({
-      el: '#editor'
-    }).render();
-
-    // set the value should be independent from the init
-    text.setValue($('script[name=content]').text());
-  });
-</script>
-
+    });
+  </script>
 </head>
 <body>
-	<header>
-		<nav>
-			<ul>
-				<li><a title="Substance/Text" href="http://interior.substance.io/modules/text.html">Substance Text</a></li>
-			</ul>
-		</nav>
-	</header>
-	<div class="main">
-		<section class="doc">
-			<div id="editor"></div>
-		</section>
-	
-		<section class="debug">
-			<table cellspacing="0">
-				<caption>Debug </caption>  
-					<thead>  
-					<tr>  
-						<th>Type</th>
-						<th>Start</th>
-						<th>End</th>
-						<th>ID</th>
-					</tr>
-				</thead>
-				<tbody id="annotationLog">
-				</tbody>
-			</table>
-			<table cellspacing="0" data-type="debug-content">
-				<caption>Content</caption>
-				<thead>
-					<tr>
-						<th>Data</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td data-type="content-data">...</td>
-					</tr>
-				</tbody>
-			</table>
-		<div class="clear"></div>
-		</section>
-	</div>
+    <div id="content" class="content" contenteditable="true"></div>
+    <div class="clear"></div>
 </body>
-</html>
