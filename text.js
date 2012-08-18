@@ -3,8 +3,7 @@
   // Substance
   // =========
 
-  if (!w.Substance) { w.Substance = {}; }
-  if (!Substance) { var Substance = w.Substance; }
+  if (!w.Substance || !Substance) { w.Substance = Substance = {}; }
 
 
   // Suggested interactions with surface
@@ -95,6 +94,10 @@
       surface.apply(["insert", {"type": "comment"}]);
     });
 
+
+    // Events
+    // ------
+    
     surface.on('surface:active', function(){
       $text.addClass('active');
     });
