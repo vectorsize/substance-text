@@ -46,6 +46,11 @@
       ,   type;
 
       if(typeof _type === 'object'){
+
+        if(typeof _type.type === 'undefined'){
+          _type.type = 'cmd';
+        }
+
         text = _type.text || _type.type
         type = _type.type;
       }else{
@@ -53,7 +58,7 @@
       }
 
       $tool = $(_.tpl('tool', {'type':type, 'text':text}));
-      $tool.click(callback);
+      $tool.click(type, callback);
       $toolbar.append($tool);
     }
     
@@ -78,7 +83,7 @@
     });
 
     // Adding links
-    addTools({type:'link', text:'Link'}, function(){
+    addTools({type:'link', text:'Link'}, function(type){
       // optional link attributes
       var attr = {
             "href" : "#",
@@ -86,12 +91,17 @@
             "placeholer" : "http://google.com"
           };
 
-      surface.apply(["insert", {"type": "link", "attributes": attr}]);
+      surface.apply(["insert", {"type": type, "attributes": attr}]);
     });
 
     // Adding comments
-    addTools({type:'comment', text:'Add comment'}, function(){
-      surface.apply(["insert", {"type": "comment"}]);
+    addTools({type:'comment', text:'Add comment'}, function(type){
+      surface.apply(["insert", {"type": type}]);
+    });
+
+    // Adding comments
+    addTools({text:'Test programmatic selection (before and after annotations)'}, function(type){
+      surface.select(305, 310);
     });
 
 
