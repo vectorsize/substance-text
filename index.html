@@ -7,17 +7,19 @@
   <!-- Libs -->
   <script type="text/javascript" src="lib/underscore.js"></script>
   <script type="text/javascript" src="lib/jquery-min.js"></script>
+  <script type="text/javascript" src="lib/dmp.js"></script>
   <script type="text/javascript" src="lib/rangy/core.js"></script>
   <script type="text/javascript" src="lib/rangy/dom.js"></script>
   <script type="text/javascript" src="lib/rangy/domrange.js"></script>
   <script type="text/javascript" src="lib/rangy/wrappedrange.js"></script>
   <script type="text/javascript" src="lib/rangy/wrappedselection.js"></script>
   <script type="text/javascript" src="lib/rangy/cssclassapplier.js"></script>
+
   <!-- Templates -->
   <script type="text/html" name="toolbar">
     <div id="toolbar"></div>
   </script>
-
+ 
   <script type="text/html" name="tool">
     <a class="tool" data-command="<%= type %>" href="#<%= type %>"><%= text %></a>
   </script>
@@ -36,7 +38,6 @@
 
   <script type="text/javascript">
     $(function() {
-
       var text = new Substance.Text({
         el: "#content", 
         content: $('script[name=content]').text(), 
@@ -54,6 +55,13 @@
         //     }
         //   
         ]
+      });
+
+      // Debug
+      // --------------
+
+      text.on('text:change', function(delta, content) {
+        console.log("DELTA", delta);
       });
 
     });
