@@ -91,7 +91,7 @@ Substance.Text = function(options) {
     var attr = {
           "href" : "#",
           "prompt" : "Add a valid URL",
-          "placeholer" : "http://google.com"
+          "placeholder" : "http://google.com"
         };
 
     surface.apply(["insert", {"type": type, "attributes": attr}]);
