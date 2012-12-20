@@ -1,3 +1,5 @@
+```[DATE: 20/12/2012; Status: Broken at the moment, updates comming soon]```
+
 # Substance Text
 
 A visual text editor built on [Surface](http://github.com/substance/surface), providing support for text emphasis, and links. Thanks to Victor Saiz (vectorsize) for working on Surface. Substance Text is the official successor of [Proper](http://github.com/michael/proper) if you're wondering why this repository is now called `text`.
